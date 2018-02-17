@@ -1,0 +1,2249 @@
+Id,PostTypeId,AcceptedAnswerId,ParentId,CreationDate,DeletionDate,Score,ViewCount,Body,OwnerUserId,OwnerDisplayName,LastEditorUserId,LastEditorDisplayName,LastEditDate,LastActivityDate,Title,Tags,AnswerCount,CommentCount,FavoriteCount,ClosedDate,CommunityOwnedDate
+10887,2,,10877,2008-08-14 11:01:30,,25,,"<p>The CSS for styling lists is <a href=""http://www.w3.org/TR/REC-CSS2/generate.html#lists"" rel=""nofollow"">here</a>, but is basically:</p>
+
+<pre class=""lang-css prettyprint-override""><code>li {
+    list-style-type: decimal;
+    list-style-position: inside;
+}
+</code></pre>
+
+<p>However, the specific layout you're after can probably only be achieved by delving into the innards of the layout with something like <a href=""http://www.w3.org/TR/REC-CSS2/generate.html#counters"" rel=""nofollow"">this</a> (note that I haven't actually tried it):</p>
+
+<pre class=""lang-css prettyprint-override""><code>ol { counter-reset: item }
+li { display: block }
+li:before { content: counter(item) "") ""; counter-increment: item }
+</code></pre>
+",1000,sadie,2678454,sadie,2016-01-14 19:18:09,2016-01-14 19:18:09,,,,1,,,
+14738,2,,10877,2008-08-18 14:51:27,,4,,"<p>I suggest playing with the :before attribute and seeing what you can achieve with it. It will mean your code really is limited to nice new browsers, and excludes the (annoyingly large) section of the market still using rubbish old browsers,</p>
+
+<p>Something like the following, which forces a fixed with on the items. Yes, I know it's less elegant to have to choose the width yourself, but using CSS for your layout is like undercover police work: however good your motives, it always gets messy.</p>
+
+<pre><code>li:before {
+  content: counter(item) "") "";
+  counter-increment: item;
+  display: marker;
+  width: 2em;
+}
+</code></pre>
+
+<p>But you're going to have to experiment to find the exact solution.</p>
+",1000,sadie,,,,2008-08-18 14:51:27,,,,1,,,
+15939,2,,15481,2008-08-19 09:46:52,,32,,"<p>I don't understand where this ""don't use labels"" rule comes from. When doing non-trivial looping logic, the test to break or continue isn't always neatly at the end of the surrounding block.</p>
+
+<pre><code>outer_loop:
+for (...) {
+  //  some code
+  for (...) {
+    //  some code
+    if (...)
+      continue outer_loop;
+    //  more code
+  }
+  //  more code
+}
+</code></pre>
+
+<p>Yes, cases like this do happen all the time. What are people suggesting I use instead? A boolean condition like this?</p>
+
+<pre><code>for (...) {
+  //  some code
+  boolean continueOuterLoop = false;
+  for (...) {
+    //  some code
+    if (...) {
+      continueOuterLoop = true;
+      break;
+    }
+    //  more code
+  }
+  if (continueOuterLoop)
+    continue;
+  //  more code
+}
+</code></pre>
+
+<p><strong>Yuck!</strong>  Refactoring it as a method doesn't alleviate that either:</p>
+
+<pre><code>boolean innerLoop (...) {
+  for (...) {
+    //  some code
+    if (...) {
+      return true;
+    }
+    //  more code
+  }
+  return false;
+}
+
+for (...) {
+  //  some code
+  if (innerLoop(...))
+    continue;
+  //  more code
+}
+</code></pre>
+
+<p>Sure it's a little prettier, but it's still passing around a superfluous boolean. And if the inner loop modified local variables, refactoring it into a method isn't always the correct solution.</p>
+
+<p>So why are you all against labels? Give me some solid reasons, and practical alternatives for the above case.</p>
+",1000,sadie,,,,2008-08-19 09:46:52,,,,4,,,
+15946,2,,15851,2008-08-19 10:14:51,,34,,"<p>Looking at the solutions presented so far:</p>
+
+<ul>
+<li><p>They all look less readable than the original, in that they involve spending more code on the mechanism of the code rather than on the algorithm itself</p></li>
+<li><p>Some of them are broken, or were before they were edited. Most damning is the fact that people are having to think quite hard about how to write the code without labels and not break anything.</p></li>
+<li><p>Some come with a performance penalty of running the same test twice, which may not always be trivial. The alternative to that is storing and passing round booleans, which gets ugly.</p></li>
+<li><p>Refactoring the relevant part of the code into a method is effectively a no-op: it rearranges how the code is laid out in the file, but has no effect on how it's executed.</p></li>
+</ul>
+
+<p>All of which makes me believe that, at least in the case of this question as phrased, the label is the correct solution and doesn't need to be refactored away. Certainly there are cases where labels are used incorrectly and should be refactored away. I just don't think it should be treated as some unbreakable rule.</p>
+",1000,sadie,,,,2008-08-19 10:14:51,,,,1,,,
+15956,2,,15690,2008-08-19 10:34:35,,4,,"<p>This sounds very much like my first job. Straight out of university, I was asked to design the database and business logic layer, while other people would take care of the UI. Meanwhile the boss was looking over my shoulder, unwilling to let go of what used to be his baby and was now mine, and poking his finger in it. Three years later, developers were fleeing the company and we were still X months away from actually selling anything.</p>
+
+<p>The big mistake was in being too ambitious. If this is your first job, you <em>will</em> make mistakes and you <em>will</em> need to change how things work long after you've written them. We had all sorts of features that made the system more complicated than it needed to be, both on the database level and in the API that it presented to other developers. In the end, the whole thing was just far too complicated to support all at once and just died.</p>
+
+<p>So my advice:</p>
+
+<ol>
+<li><p>If you're not sure about taking on such a big job single-handed, don't. Tell your employers, and get them to find or hire somebody for you to work with who can help you out. If people need to be added to the project, then it should be done near the start rather than after stuff starts going wrong.</p></li>
+<li><p>Think very carefully about what the product is for, and to boil it down to the <strong>simplest</strong> set of requirements you can think of. If the people giving you the spec aren't technical, try to see past what they've written to what will actually work and make money. Talk to customers and salespeople, and understand the market.</p></li>
+<li><p>There's no shame in admitting you're wrong. If it turns out that the entire system needs to be rewritten, because you made some mistake in your first version, then it's better to admit this as soon as possible so you can get to it. Correspondingly, don't try to make an architecture that can anticipate every possible contingency in your first version, because you don't know what every contingency is and will just get it wrong. Write once with an eye to throwing away and starting again - you may not have to, the first version may be fine, but admit it if you do.</p></li>
+</ol>
+",1000,sadie,,,,2008-08-19 10:34:35,,,,0,,,
+16014,2,,15851,2008-08-19 11:28:13,,1,,"<p>@<a href=""http://stackoverflow.com/questions/15851?sort=newest#15981"" rel=""nofollow"">Nicolas</a></p>
+
+<blockquote>
+  <blockquote>
+    <p>Some of them are broken, or were before they were edited. Most damning is the fact that 
+    people are having to think quite hard about how to write the code without labels and not 
+    break anything.</p>
+  </blockquote>
+  
+  <p>I have a different point of view: some of them are broken because it is hard to figure out 
+  the behavior of the original algorithm.</p>
+</blockquote>
+
+<p>I realise that it's subjective, but I don't have any trouble reading the original algorithm. It's shorter and clearer than the proposed replacements.</p>
+
+<p>What all the refactorings in this thread do is emulate the behaviour of a label using other language features - as if you were porting the code to a language that didn't have labels.</p>
+",1000,sadie,,,,2008-08-19 11:28:13,,,,0,,,
+16233,1,16255,,2008-08-19 14:13:18,,22,7464,"<p>The collection of fonts available to a web developer is depressingly limited. I remember reading long ago about TrueDoc, as a way of shipping fonts alongside a website - but it seems to have languished. Has anybody used this, or something similar? Is it supported by enough browsers? Am I missing a good solution?</p>
+
+<p>Note that a responsible web developer does not use fonts that are only available on Windows (and <em>especially</em> ones that are only available on Vista), nor do they use a technology that isn't supported by at least the majority of browsers.</p>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong> As several people have pointed out, there's nothing wrong with providing a list of fallback fonts for people who don't have the specific font you use. I do in fact always do this, and didn't mean to suggest that this was wrong.</p>
+
+<p>While my question was badly phrased, what I meant was that a designer should not make too many assumptions about what the client will have available. You should plan for how all users will see your site, not just for people using your own preferred setup.</p>
+",1000,sadie,1000,sadie,2008-08-21 13:12:30,2014-05-03 17:56:12,Fonts on the Web,<html><css><fonts>,10,6,9,2014-10-31 20:26:55,
+17678,2,,17645,2008-08-20 09:42:10,,2,,"<p>In addition to the answers given, you may find issues with the different file systems:</p>
+
+<ul>
+<li><p>On unix, files that start with a <strong>.</strong> are hidden. On windows, it's a filesystem flag that you probably don't have easy access to. This may result in files that are supposed to be hidden now becoming visible on the client machines.</p></li>
+<li><p>File permissions vary between the two. You will probably find, when you copy files onto a unix system, that the files now belong to the user that did the copying and have limited rights. You'll need to use <strong>chown/chmod</strong> to make sure the correct users have access to them.</p></li>
+</ul>
+",1000,sadie,,,,2008-08-20 09:42:10,,,,0,,,
+17703,2,,17435,2008-08-20 10:16:49,,0,,"<p>Server-side programming has been around for a lot longer than client side, and has <em>lots</em> of good solutions already.</p>
+
+<p>JavaScript has survived and become popular purely because developers have very little choice in the matter - it's the only language that can interact with a DOM. Its only competition on the client side is from things like Flash and Silverlight which have a very different model.</p>
+
+<p>This is also why JavaScript has received so much effort to smart it up and add modern features. If it were possible for the whole browser market to drop JavaScript and replace it with something designed properly for the task, I'm sure they would. As it stands Javascript has strange prototype-based objects, a few neat functional programming features, limited and quirky collections and very few libraries.</p>
+
+<p>For small scripts it's fine, but it's a horrible language for writing large complicated systems. That things like Firefox and Gmail are (partly) written in it is a heroic accomplishment on their part, not a sign that the language is ready for real application development.</p>
+",1000,sadie,21632,Adam Bellaire,2008-10-22 21:02:41,2008-10-22 21:02:41,,,,2,,,
+17723,2,,17430,2008-08-20 10:44:32,,1,,"<p>Short of a formal mathematical proof (which I imagine would be difficult), the proof of the pudding is in the unit tests. You have to find a way to wrap the converted C# snippets, compile the and run them under a similar environment, then compare the output against the original. Unless you're rigorous in your testing, there's no way you can be confident of the result.</p>
+",1000,sadie,,,,2008-08-20 10:44:32,,,,0,,,
+19767,2,,12927,2008-08-21 12:49:59,,1,,"<p><strong>Use a profiler.</strong> Yes they cost money, and using them can occasionally be a bit awkward, but they do provide you with a great deal more real evidence rather than guesswork.</p>
+
+<p>Human beings are universally bad at guessing where performance bottlenecks are. It just seems to be something our brains aren't build to do very well. It may seem obvious, you may have great ideas about what the problem is, but the real world often turns out to be doing something different. And optimising the wrong part of code means, at best, lots of work for minimal benefit. More often it makes things slower, and sometimes it breaks things entirely. So before you make any changes for the sake of optimisation, you should <em>always</em> have real evidence from a profiler or other accurate tool.</p>
+
+<p>As mentioned, both JProfiler and YourKit are both fairly good and not prohibitively expensive. Last time I looked, they both had free demos too.</p>
+",1000,sadie,,,,2008-08-21 12:49:59,,,,0,,,
+22338,1,,,2008-08-22 13:27:26,,9,5073,"<p>I flatter myself that I'm a good programmer, and can get away with graphic design. But something I'm incapable of doing is coming up with good names - and it seems neither are the people I work with. We're now in the slightly ludicrous situation that the product we've been working on for a couple of years is being installed to customers, is well received and is making money - but doesn't yet have a name.</p>
+
+<p>We're too small a company to have anything like a proper marketing division to do this thing. So how have people tended to choose names, logos and branding?</p>
+",1000,sadie,363592,,2012-05-04 14:38:26,2014-03-28 00:50:00,How do people choose product names?,<naming>,5,1,5,,
+22741,2,,22704,2008-08-22 16:04:19,,1,,"<p>As I said in <a href=""http://stackoverflow.com/questions/12927/if-you-have-a-java-application-that-is-consuming-cpu-when-it-isnt-doing-anythin#19767"" rel=""nofollow"">another question</a>:</p>
+
+<blockquote>
+  <p><strong>Use a profiler.</strong> Yes they cost money, and using them can occasionally be a bit awkward, but they do provide you with a great deal more real evidence rather than guesswork.</p>
+  
+  <p>Human beings are universally bad at guessing where performance bottlenecks are. It just seems to be something our brains aren't build to do very well. It may seem obvious, you may have great ideas about what the problem is, but the real world often turns out to be doing something different. And optimising the wrong part of code means, at best, lots of work for minimal benefit. More often it makes things slower, and sometimes it breaks things entirely. So before you make any changes for the sake of optimisation, you should always have real evidence from a profiler or other accurate tool.</p>
+</blockquote>
+",1000,sadie,,,,2008-08-22 16:04:19,,,,0,,,
+30782,2,,30754,2008-08-27 18:16:38,,2,,"<p>You should always go for readability first. The shape of a system will typically evolve as you develop it, and the real performance bottlenecks will be unexpected. Only when you have the system running and can see real evidence - as provided by a profiler or other such tool - will the best way to optimise be revealed.</p>
+
+<p>""If you're in a hurry, take the long way round.""</p>
+",1000,sadie,,,,2008-08-27 18:16:38,,,,0,,,
+31436,2,,8952,2008-08-28 00:39:55,,3,,"<p>While performance is an issue, I think modern database designs have made it much less of an issue for small files.</p>
+
+<p>Performance aside, it also depends on just how tightly-coupled the data is. If the file contains data that is closely related to the fields of the database, then it conceptually belongs close to it and may be stored in a blob. If it contains information which could potentially relate to multiple records or may have some use outside of the context of the database, then it belongs outside. For example, an image on a web page is fetched on a separate request from the page that links to it, so it may belong outside (depending on the specific design and security considerations).</p>
+
+<p>Our compromise, and I don't promise it's the best, has been to store smallish XML files in the database but images and other files outside it.</p>
+",1000,sadie,,,,2008-08-28 00:39:55,,,,1,,,
+35933,2,,35707,2008-08-30 12:31:54,,2,,"<p>In a client-server setting, if you care about security, you should always program on the assumption that the client may have been compromised. Even if it hasn't, there is always the risk of somebody using an old version of the client, using a competing or modified version of the client, or just of the net connection being a bit screwy.</p>
+
+<p>So while you do as much work on the client as possible, processing and marshalling information into the right form, the server then needs to do a thorough sanity check on anything the client gives it.</p>
+
+<p>So the answer I guess is ""both"".</p>
+",1000,sadie,,,,2008-08-30 12:31:54,,,,0,,,
+36551,1,,,2008-08-31 01:39:45,,0,3016,"<p>The command line interface to MySQL works perfectly well in itself, but when using my local copy I'm forced to interact with it using the old-fashioned DOS windows. Is there some way I can redirect it through a better shell?</p>
+",1000,sadie,,,,2012-08-02 12:03:07,MySQL shell on Windows,<mysql><windows><shell>,3,0,,,
+38115,2,,21274,2008-09-01 16:23:46,,1,,"<p>For something minimalist, take a look at <a href=""http://www.themaninblue.com/experiment/widgEditor/"" rel=""nofollow"">Widg Editor</a>, it's truly tiny and very simple. It's only haphazardly supported as a hobby project though.</p>
+
+<p>I'm currently using the RTE component of <a href=""http://www.dynarchlib.com/"" rel=""nofollow"">DynarchLib</a>, which is highly customisable - definitely does AJAX - but a bit complicated and not very pretty. It is actively supported, and you can get answers on their forum very quickly.</p>
+
+<p>I previously tried Dojo's editor, and found it broken and badly undocumented. YMMV.</p>
+
+<p><hr /></p>
+
+<p><strong>Edit:</strong> In response to other people's answers, I've now tried TinyMCE and found it to be excellent. More easily configurable and far fewer problems than anything else I've tried. <strong>Use TinyMCE!</strong></p>
+",1000,sadie,1000,sadie,2008-10-10 01:21:45,2008-10-10 01:21:45,,,,0,,,
+48889,2,,48877,2008-09-07 23:22:40,,2,,"<p>The web runtimes like Flex and Silverlight all offer enticing things, but come with two big costs:</p>
+
+<ul>
+<li>They run only within a rectangle on the page, and don't interact with normal web widgets</li>
+<li>They are only available to people who have that plug-in installed</li>
+</ul>
+
+<p>Even the nearly-ubiquitous Flash isn't installed on every web browser, so by choosing to use a plug-in runtime you're excluding part of your audience.</p>
+
+<p>In contrast, JavaScript (or Ajax) is available on pretty much every browser, and interacts better with normal web pages, but is a more primitive and restricting language. Using it for complex animations can be tricky, and you'll need to test your applications in more versions on more platforms to make sure it works.</p>
+
+<p>Cross-platform compatibility isn't the issue it used to be, so the issue is this: <strong>Will you gain more in the features of a plug-in library than you'll lose in the audience you exclude?</strong></p>
+
+<p>My own answer has so far always been JavaScript/Ajax, but I'd re-evaluate that in any new project.</p>
+",1000,sadie,63550,,2010-01-03 09:21:21,2010-01-03 09:21:21,,,,0,,,
+50988,2,,50769,2008-09-09 00:01:30,,14,,"<p>It needs to be much simpler: involve less knowledge of the concepts, and require fewer steps - preferably zero. When the technology works with little or no assistance, it'll take off.</p>
+
+<p>The mechanics of OpenID credentials, providers and suppliers shouldn't need to be exposed to the user. People talk about educating the masses of internet users, but that's never going to happen - the masses never stop being stupid. If you want to appeal to the masses, you need to bring the technology down to meet their level instead. When a Google-affiliated site picks up that you're logged into Google and silently uses that account, it works without you ever having to tell it who you are. The fact that OpenID is so clumsy in comparison is why the big providers like Google are still avoiding it, and why the general public won't adopt it.</p>
+
+<p>I think the developers of OpenID messed up when they used a URL rather than an email address for the IDs. People know what email addresses are, they already have one that's associated with them (or can get one easily), and email providers like Google and Microsoft are happy to adopt a role as portals. In fact, an automatic translation from email address to URL is all it would take:</p>
+
+<blockquote>
+  <p>myname@example.com  ->  <a href=""http://www.example.com/openid/myname"" rel=""nofollow"">http://www.example.com/openid/myname</a></p>
+</blockquote>
+",1000,sadie,,,,2008-09-09 00:01:30,,,,4,,,
+52213,1,52226,,2008-09-09 15:45:19,,12,12026,"<p>When a user hits Refresh on their browser, it reloads the page but keeps the contents of form fields. While I can see this being a useful default, it can be annoying on some dynamic pages, leading to a broken user experience.</p>
+
+<p>Is there a way, in HTTP headers or equivalents, to change this behaviour?</p>
+",1000,sadie,2961,Stu Thompson,2008-09-17 07:50:03,2009-11-28 16:44:28,Browser refresh behaviour,<html><http><refresh>,6,2,4,,
+56396,2,,56347,2008-09-11 12:20:26,,1,,"<p>Iterators are only equivalent to pointers in the trivial case of iterating over the contents of an array in sequence. An iterator could be supplying objects from any number of other sources: from a database, from a file, from the network, from some other calculation, etc.</p>
+",1000,sadie,,,,2008-09-11 12:20:26,,,,0,,,
+83611,2,,83444,2008-09-17 14:06:05,,0,,"<p>Keep it simple, and test everything across multiple browsers. Compared to the strictly controlled compilation of Java, you'll find Javascript is fuzzy and unpredictable. Many things don't behave themselves.</p>
+
+<p>I don't use jQuery myself, but I'm starting to wish I did. Like many of the better javascript libraries, it papers over some of the cracks and makes the language more regular.</p>
+",1000,sadie,,,,2008-09-17 14:06:05,,,,0,,,
+127015,2,,126979,2008-09-24 13:08:15,,0,,"<p>XML is a meta-format, meaning it makes it easier to define a format for your data. This makes it easier for multiple programs, including ones by different companies, to read and write data in the same format. It's especially suitable as a description for complex, hierarchical data.</p>
+
+<p>In the example you outline above, the data looks to be isolated records in a fixed format, with no structure or hierarchy - in which case I can see no advantage in using XML. However, the example may be unrepresentative - your other files may contain more structured data.</p>
+",1000,sadie,,,,2008-09-24 13:08:15,,,,0,,,
+127130,2,,126898,2008-09-24 13:30:44,,0,,"<p>In this case, the files in question are not just a different language, but also run as a separate program that interacts through a defined interface. This means that the source files can be treated as a separate project, and therefore kept elsewhere.</p>
+
+<p>The case is different in .NET projects which mix C# and ASP.NET (for example) within one codebase. How do people organise their code in such cases?</p>
+",1000,sadie,,,,2008-09-24 13:30:44,,,,0,,,
+128162,1,143702,,2008-09-24 16:19:35,,26,25166,"<p>My program generates relatively simple PDF documents on request, but I'm having trouble with unicode characters, like kanji or odd math symbols. To write a normal string in PDF, you place it in brackets:</p>
+
+<pre><code>(something)
+</code></pre>
+
+<p>There is also the option to escape a character with octal codes:</p>
+
+<pre><code>(\527)
+</code></pre>
+
+<p>but this only goes up to 512 characters. How do you encode or escape higher characters? I've seen references to byte streams and hex-encoded strings, but none of the references I've read seem to be willing to tell me how to actually do it.</p>
+
+<p><hr /></p>
+
+<p><strong>Edit:</strong> Alternatively, point me to a good Java PDF library that will do the job for me. The one I'm currently using is a version of gnujpdf (which I've fixed several bugs in, since the original author appears to have gone AWOL), that allows you to program against an AWT Graphics interface, and ideally any replacement should do the same.</p>
+
+<p>The alternatives seem to be either HTML -> PDF, or a programmatic model based on paragraphs and boxes that feels very much like HTML. iText is an example of the latter. This would mean rewriting my existing code, and I'm not convinced they'd give me the same flexibility in laying out.</p>
+
+<p><hr /></p>
+
+<p><strong>Edit 2:</strong> I didn't realise before, but the iText library has a Graphics2D API and seems to handle unicode perfectly, so that's what I'll be using. Though it isn't an answer to the question as asked, it solves the problem for me.</p>
+
+<p><hr /></p>
+
+<p><strong>Edit 3:</strong>  iText is working nicely for me. I guess the lesson is, when faced with something that seems pointlessly difficult, look for somebody who knows more about it than you.</p>
+",1000,sadie,23855,chills42,2008-11-05 14:34:17,2016-08-17 22:57:00,Unicode in PDF,<pdf><unicode><utf-8><pdf-generation>,7,1,4,,
+157064,2,,157005,2008-10-01 10:45:59,,-2,,"<p>I don't really use JSP (and I replied once, then deleted it when I understood the ""must by valid XML"" thing). The cleanest I can come up with is this:</p>
+
+<pre><code>&lt;% if (isDisabled) { %&gt;
+  &lt;button name=""btn1"" disabled=""disabled""&gt;Hello&lt;/button&gt;
+&lt;% } else { %&gt;
+  &lt;button name=""btn1""&gt;Hello&lt;/button&gt;
+&lt;% } %&gt;
+</code></pre>
+",1000,sadie,,,,2008-10-01 10:45:59,,,,1,,,
+183205,2,,183062,2008-10-08 14:55:00,,3,,"<p>Think of the CSS as creating a 'toolkit' that the HTML can refer to. The following rules will help:</p>
+
+<ul>
+<li><p>Make <code>class</code> names unambiguous. In most cases this means prefixing them in a predicatable way. For example, rather than <code>left</code>, use something like <code>header_links_object2_left</code>.</p></li>
+<li><p>Use <code>id</code> rather than <code>class</code> <strong>only</strong> if you know there will only <strong>ever</strong> be one of an object on a page. Again, make the <code>id</code> unambiguous.</p></li>
+<li><p>Consider side effects. Rules like <code>margin</code> and <code>padding</code>, <code>float</code> and <code>clear</code>, and so on can all have unexpected consequences on other elements.</p></li>
+<li><p>If your stylesheet is to be used my several HTML coders, consider writing them a small, clear guide to how to write HTML to match your scheme. Keep it simple, or you'll bore them.</p></li>
+</ul>
+
+<p>And as always, test it in multiple browsers, on multiple operating systems, on lots of different pages, and under any other unusual conditions you can think of.</p>
+",1000,sadie,,,,2008-10-08 14:55:00,,,,1,,,
+189834,2,,189787,2008-10-10 01:35:09,,11,,"<p>A large set of parameters like this is often (but not always) an indicator that you could be using an object to represent the parameter set. This is especially true if either:</p>
+
+<ul>
+<li><p>There are several methods with similar large parameter sets, that can be replaced with a single method taking a parameter object.</p></li>
+<li><p>The method is called <code>create...</code></p></li>
+</ul>
+
+<p>So your above code could become (pardon my C++, I'm a Java developer):</p>
+
+<pre><code>class BuildVehicleBooking {
+    Long officeId;
+    Long start;
+    Long end;
+    String origin;
+    String destination;
+    String purpose;             
+    String requirements;
+    Integer numberOfPassengers;
+
+    Booking createVehicleBooking () throws ServiceException { ... }
+}
+</code></pre>
+
+<p>This is the <strong>Builder Pattern</strong>. The advantage of this pattern is that you can build up a complex set of parameters in pieces, including multiple variations on how the parameters relate to each other, and even overwriting parameters as new information becomes available, before finally calling the <code>create</code> method at the end.</p>
+
+<p>Another potential advantage is that you could add a <code>verifyParameters</code> method that checked their consistence before you go as far as <code>creating</code> the final object. This is applicable in cases where creating the object involves non-reversible steps, such as writing to a file or database.</p>
+
+<p>Note that, as with all patterns, this doesn't apply in every case and may not apply in yours. If your code is simple enough then this pattern may be over-engineering it. If the code is getting messy, refactoring into this pattern can be a good way to simplify it.</p>
+",1000,sadie,,,,2008-10-10 01:35:09,,,,4,,,
+191234,2,,191004,2008-10-10 13:20:48,,4,,"<p>Just tag those DIVs with a class that's hidden on the print stylesheet:</p>
+
+<p><strong>HTML</strong></p>
+
+<pre><code>&lt;div id='div19' class='noprint'&gt;
+  ...
+&lt;/div&gt;
+</code></pre>
+
+<p><strong>print.css</strong></p>
+
+<pre><code>.noprint {
+  display: none;
+}
+</code></pre>
+
+<p>If you don't know in advance which elements you need to hide, you can use javascript to set the class for the given objects:</p>
+
+<p><strong>Javascript</strong></p>
+
+<pre><code>document.getElementById('div19').className='noprint';
+</code></pre>
+",1000,sadie,,,,2008-10-10 13:20:48,,,,0,,,
+193436,2,,193269,2008-10-11 00:11:39,,0,,"<p>There is a theoretical difference between the server and client. To a web browser, the document is a living DOM hierarchy. To your server code it's merely an XML document of whatever type. XPath is the ""correct"" way to access elements of an XML document.</p>
+
+<p>So unless you have a serious performance problem with your current XPath solution, or it doesn't actually work correctly, I suggest you stick with it. Trying something too clever brings the risk of breaking something that's working.</p>
+
+<p>If you find the XPath to be <em>too</em> verbose and ugly to leave sitting around, or want more power to re-use the tool in different cases, or just can't resist trying to do something clever, then you could try writing a utility that compiles a given CSS selector into an XPath. You could then call this in one line whenever you needed.</p>
+",1000,sadie,,,,2008-10-11 00:11:39,,,,3,,,
+201105,2,,200966,2008-10-14 13:16:05,,0,,"<p>Each language has conventions for the best way to code such things, so what's most readable to people who regularly use that language isn't universal. For a Java or normal C# programmer, the first option is more readable. For somebody used to LINQ or functional programming, the second is more readable.</p>
+",1000,sadie,,,,2008-10-14 13:16:05,,,,2,,,
+201154,2,,200939,2008-10-14 13:30:43,,1,,"<p>tinyMCE allows you to specify a 'whitelist' of allowed tags, which will remove any tags not included on the list:</p>
+
+<pre><code>tinyMCE.init({
+  ...  //  other init instructions
+  valid_elements: 'p,a[href],br',
+});
+</code></pre>
+
+<p>In our own project we combine this whitelist with an internal converter which turns the HTML into a BB-like format for the database, then back to HTML again when it needs to be printed to a page.</p>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong> Now that the question has been edited to be clearer, I can see that what I typed above doesn't solve the problem. What the questioner wants is a way to convert character entities while leaving HTML tags unaffected.</p>
+
+<p>In our own project, the internal converter we use does this job. When converting from HTML into our internal representation, encoded characters are converted into the characters themselves; when converting back into HTML, higher characters are encoded. This is done in a character-by-character, parser-like style. However this approach is probably too complicated for your needs.</p>
+
+<p>The shortcut used by many is to use a series of regular expressions, but you may find it difficult to arrange your regexes in such a way as to preserve ampersands <code>&amp;</code> and semicolons <code>;</code> at the same time as translating character entities <code>&amp;nbsp;</code>. You'll also find that to cover every possible character entity you'd need dozens of regexes.</p>
+
+<p>Uh, so I don't actually have an answer.</p>
+",1000,sadie,1000,sadie,2008-10-14 14:21:52,2008-10-14 14:21:52,,,,0,,,
+203296,1,1113278,,2008-10-15 00:09:38,,18,6250,"<p>Like any responsible developer, I'd like to make sure that the sites I produce are accessible to the widest possible audience, and that includes the significant fraction of the population with some form of colour blindness.</p>
+
+<p>There are many websites which offer to filter a URL you feed it, either by rendering a picture or by filtering all content. However, both approaches seem to fail when rendering even moderately complex layouts, so I'd be interested in finding a client-side approach.</p>
+
+<p>The ideal solution would be a system filter over the whole screen that can be used to test any program. The next best thing would be a browser plugin.</p>
+",1000,sadie,18103,skiphoppy,2008-12-18 15:07:18,2015-02-19 21:21:34,Colour blindness simulator,<colors><accessibility><blindness>,6,3,10,,
+203552,2,,203180,2008-10-15 02:39:07,,12,,"<p>Why are you excluding as well as including? If you have at least one include, then files are only compiled if they're explicitly included. So this should work:</p>
+
+<pre><code>&lt;javac srcdir=""${src.dir}"" destdir=""${build.dir}"" classpathref=""classpath""
+        includes=""src/path/to/MyClass.java"" /&gt;
+</code></pre>
+
+<p>Or more flexibly:</p>
+
+<pre><code>&lt;javac srcdir=""${src.dir}"" destdir=""${build.dir}"" classpathref=""classpath""&gt;
+    &lt;include name=""src/path/to/MyClass.java""/&gt;
+    &lt;include name=""src/path/to/AnotherClass.java""/&gt;
+&lt;/javac&gt;
+</code></pre>
+
+<p>To include only certain packages or classes in a jar, use a fileset attribute</p>
+
+<pre><code>&lt;jar jarfile=""${outlib}/something.jar""&gt;
+    &lt;fileset dir=""${build.dir}""&gt;
+        &lt;include name='src/path/to/classes' /&gt;
+    &lt;/fileset&gt;
+&lt;/jar&gt;
+</code></pre>
+
+<p>Again, you can use multiple includes to combine separate packages. Experiment with includes and <a href=""http://ant.apache.org/manual/"">read the documentation</a> and you're sure to find the answer you need.</p>
+",1000,sadie,1000,sadie,2008-10-15 03:46:04,2008-10-15 03:46:04,,,,1,,,
+203566,2,,203543,2008-10-15 02:46:01,,0,,"<p>On one blog/forum combination, we hacked together the signup procedure so that people filled in one form to sign up to both WordPress and phpBB at the same time. I'm sure there's a better way to do that with plugins, but it did have one unexpected benefit - it really confuses the spambots. Despite having several of them register each day, we've had about two spam posts in the life of the forum.</p>
+
+<p>Not something I'd recommend, of course - it stops us from upgrading either software.</p>
+",1000,sadie,,,,2008-10-15 02:46:01,,,,0,,,
+208310,2,,206763,2008-10-16 12:20:21,,2,,"<p>Like many web developers, I long ago stopped using WYSIWYG editors simply because none of them was good enough - and I wouldn't trust any of them (except possibly DreamWeaver, I'm not sure) to preserve PHP.</p>
+
+<p>But lately I have found myself more willing to use existing software. I've delivered several corporate sites based on WordPress, which gives clients a WYSiWYG editor for their pages while still giving me the freedom to write the code.</p>
+",1000,sadie,,,,2008-10-16 12:20:21,,,,0,,,
+208953,2,,207829,2008-10-16 15:09:04,,1,,"<p>I second <a href=""http://stackoverflow.com/questions/207829/best-approach-to-use-in-java-6-for-a-list-being-accessed-concurrently#208009"">Telcontar's suggestion</a> of a database, since they are actually designed for managing this scale of data and negotiating between threads, while in-memory collections are not.</p>
+
+<p>You say that the data is on a database on the server, and the local list on the clients is for the sake of user interface. You shouldn't need to keep all 100000 items on the client at once, or perform such complicated edits on it. It seems to me that what you want on the client is a lightweight cache onto the database.</p>
+
+<p>Write a cache that stores only the current subset of data on the client at once. This client cache does not perform complex multithreaded edits on its own data; instead it feeds all edits through to the server, and listens for updates. When data changes on the server, the client simply forgets and old data and loads it again. Only one designated thread is allowed to read or write the collection itself. This way the client simply mirrors the edits happening on the server, rather than needing complicated edits itself.</p>
+
+<p>Yes, this is quite a complicated solution. The components of it are: </p>
+
+<ul>
+<li>A protocol for loading a range of the data, say items 478712 to 478901, rather than the whole thing</li>
+<li>A protocol for receiving updates about changed data</li>
+<li>A cache class that stores items by their known index on the server</li>
+<li>A thread belonging to that cache which communicated with the server. This is the only thread that writes to the collection itself</li>
+<li>A thread belonging to that cache which processes callbacks when data is retrieved</li>
+<li>An interface that UI components implement to allow them to recieve data when it has been loaded</li>
+</ul>
+
+<p>At first stab, the bones of this cache might look something like this:</p>
+
+<pre><code>class ServerCacheViewThingy {
+    private static final int ACCEPTABLE_SIZE = 500;
+    private int viewStart, viewLength;
+    final Map&lt;Integer, Record&gt; items
+            = new HashMap&lt;Integer, Record&gt;(1000);
+    final ConcurrentLinkedQueue&lt;Callback&gt; callbackQueue
+            = new ConcurrentLinkedQueue&lt;Callback&gt;();
+
+    public void getRecords (int start, int length, ViewReciever reciever) {
+        // remember the current view, to prevent records within
+        // this view from being accidentally pruned.
+        viewStart = start;
+        viewLenght = length;
+
+        // if the selected area is not already loaded, send a request
+        // to load that area
+        if (!rangeLoaded(start, length))
+            addLoadRequest(start, length);
+
+        // add the reciever to the queue, so it will be processed
+        // when the data has arrived
+        if (reciever != null)
+            callbackQueue.add(new Callback(start, length, reciever));
+    }
+
+    class Callback {
+        int start;
+        int length;
+        ViewReciever reciever;
+        ...
+    }
+
+    class EditorThread extends Thread {
+
+        private void prune () {
+            if (items.size() &lt;= ACCEPTABLE_SIZE)
+                return;
+            for (Map.Entry&lt;Integer, Record&gt; entry : items.entrySet()) {
+                int position = entry.key();
+                // if the position is outside the current view,
+                // remove that item from the cache
+                ...
+            }
+        }
+
+        private void markDirty (int from) { ... }
+
+        ....
+    }
+
+    class CallbackThread extends Thread {
+        public void notifyCallback (Callback callback);
+        private void processCallback (Callback) {
+            readRecords
+        }
+    }
+}
+
+interface ViewReciever {
+    void recieveData (int viewStart, Record[] records);
+    void recieveTimeout ();
+}
+</code></pre>
+
+<p>There's a lot of detail you'll have to fill in for yourself, obviously.</p>
+",1000,sadie,,,,2008-10-16 15:09:04,,,,1,,,
+220276,2,,220236,2008-10-20 23:17:28,,2,,"<p>I asked this <a href=""http://stackoverflow.com/questions/16233/fonts-on-the-web"">a while back</a>. The answer is basically that it doesn't work. :(</p>
+",1000,sadie,,,,2008-10-20 23:17:28,,,,1,,,
+221712,2,,172151,2008-10-21 12:50:11,,3,,"<p>This is a slightly left-field suggestion, but have you looked at Karaoke software? It may not be seen as ""serious"" enough, but it sounds very similar to what you're doing. For example, <a href=""http://www.aegisub.net/"" rel=""nofollow"">Aegisub</a> is a subtitling program that lets you create subtitles in the SSA/ASS format. It has karaoke tools for hilighting the chosen word or part.</p>
+
+<p>It's most commonly used for subtitling anime, but it also works for audio provided you have a suitable player. These are sadly quite rare on the Mac.</p>
+
+<p>The format looks similar to the one proposed by Yuval A:</p>
+
+<pre><code>{\K132}Unmei {\K34}no {\K54}tobira
+{\K60}{\K132}yukkuri {\K36}to {\K142}hirakareta
+</code></pre>
+
+<p>The lengths are durations rather than absolute offsets. This makes it easier to shift the start of the line without recalculating all the offsets. The double entry indicates a pause.</p>
+
+<p>Is there a good reason this needs to be part of your Java program, or is an off the shelf solution possible?</p>
+",1000,sadie,1000,sadie,2008-10-21 12:58:39,2008-10-21 12:58:39,,,,0,,,
+225592,2,,224462,2008-10-22 12:47:39,,72,,"<p>We recently implemented a system that needs to handle values in multiple currencies and convert between them, and figured out a few things the hard way.</p>
+
+<p><strong>NEVER USE FLOATING POINT NUMBERS FOR MONEY</strong></p>
+
+<p>Floating point arithmetic introduces inaccuracies that may not be noticed until they've screwed something up. All values should be stored as either integers or fixed-decimal types, and if you choose to use a fixed-decimal type then make sure you understand exactly what that type does under the hood (ie, does it internally use an integer or floating point type).</p>
+
+<p>When you do need to do calculations or conversions:</p>
+
+<ol>
+<li>Convert values to floating point</li>
+<li>Calculate new value</li>
+<li>Round the number and convert it back to an integer</li>
+</ol>
+
+<p>When converting a floating point number back to an integer in step 3, don't just cast it - use a math function to round it first. This will usually be <code>round</code>, though in special cases it could be <code>floor</code> or <code>ceil</code>. Know the difference and choose carefully.</p>
+
+<p><strong>Store the type of a number alongside the value</strong></p>
+
+<p>This may not be as important for you if you're only handling one currency, but it was important for us in handling multiple currencies. We used the 3-character code for a currency, such as USD, GBP, JPY, EUR, etc.</p>
+
+<p>Depending on the situation, it may also be helpful to store:</p>
+
+<ul>
+<li>Whether the number is before or after tax (and what the tax rate was)</li>
+<li>Whether the number is the result of a conversion (and what it was converted from)</li>
+</ul>
+
+<p><strong>Know the accuracy bounds of the numbers you're dealing with</strong></p>
+
+<p>For real values, you want to be as precise as the smallest unit of the currency. This means you have no values smaller than a cent, a penny, a yen, a fen, etc. Don't store values with higher accuracy than that for no reason.</p>
+
+<p>Internally, you may choose to deal with smaller values, in which case that's a <em>different type of currency value</em>. Make sure your code knows which is which and doesn't get them mixed up. Avoid using floating point values even here.</p>
+
+<p><hr /></p>
+
+<p>Adding all those rules together, we decided on the following rules. In running code, currencies are stored using an integer for the smallest unit.</p>
+
+<pre><code>class Currency {
+   String code;       //  eg ""USD""
+   int value;         //  eg 2500
+   boolean converted;
+}
+
+class Price {
+   Currency grossValue;
+   Currency netValue;
+   Tax taxRate;
+}
+</code></pre>
+
+<p>In the database, the values are stored as a string in the following format:</p>
+
+<pre><code>USD:2500
+</code></pre>
+
+<p>That stores the value of $25.00. We were able to do that only because the code that deals with currencies doesn't need to be within the database layer itself, so all values can be converted into memory first. Other situations will no doubt lend themselves to other solutions.</p>
+
+<p><hr /></p>
+
+<p>And in case I didn't make it clear earlier, <strong>don't use float!</strong></p>
+",1000,sadie,,,,2008-10-22 12:47:39,,,,7,,,
+248687,2,,32280,2008-10-29 22:43:20,,1,,"<p>Since off-topic seems to have become the topic, Scala takes an interesting approach to this. All types are assumed to be not null, unless you explicity wrap it in an <code>Option</code> to indicate that it might be null. So:</p>
+
+<pre><code>//  allocate null
+var name : Option[String]
+name = None
+
+//  allocate a value
+name = Any[""Hello""]
+
+//  print the value if we can
+name match {
+  Any[x] =&gt; print x
+  _ =&gt; print ""Nothing at all""
+}
+</code></pre>
+",1000,sadie,,,,2008-10-29 22:43:20,,,,1,,,
+255412,2,,254726,2008-11-01 02:06:25,,2,,"<p>You should be aware that the <code>length()</code> method returns the number of UTF-16 code points, which is not necessarily the same as the number of characters in all cases.</p>
+
+<p>OK, the chances of that actually affecting you are pretty slim, but there's no harm in knowing it.</p>
+",1000,sadie,,,,2008-11-01 02:06:25,,,,1,,,
+258623,2,,258529,2008-11-03 13:31:02,,6,,"<p>What all that code boils down to is:</p>
+
+<pre><code>Vector&lt;A&gt; vector = new Vector&lt;B&gt;();
+</code></pre>
+
+<p>In this case B extends A, but that's not allowed because the types don't match. To make clear why this doesn't work, imagine the following code:</p>
+
+<pre><code>Vector&lt;Vector&lt;?&gt;&gt; vector = new Vector&lt;Vector&lt;String&gt;&gt;();
+vector.add(new Vector&lt;Integer&gt;());
+</code></pre>
+
+<p>The variable's type is of a <em>vector of vectors of unknown type</em>; and what's being assigned to it is a <em>vector of vectors of strings</em>. The second line adds a <em>vector of integers</em> to that. The component type of the variable <code>Vector&lt;?&gt;</code>, which accepts <code>Vector&lt;Integer&gt;</code>; but the actual vector's component type is <code>Vector&lt;String&gt;</code>, which doesn't. If the compiler didn't object to the assignment on the first line, it would allow you to write the incorrect second line without being spotted.</p>
+
+<p>C#'s generics have a similar restriction, but the difference is that a generic class in C# stores it component type, while Java forgets component types when the code is compiled.</p>
+
+<p>ps - Why on earth are you using <code>Vector</code> rather than <code>LinkedList</code> or <code>ArrayList</code>? Is it because there are threading issues involved?</p>
+",1000,sadie,,,,2008-11-03 13:31:02,,,,0,,,
+261729,2,,261683,2008-11-04 12:30:25,,12,,"<p>As others have pointed out, thread safety means that a piece of code will work without errors if it's used by more than one thread at once.</p>
+
+<p>It's worth being aware that this sometimes comes at a cost, of computer time and more complex coding, so it isn't always desirable. If a class can be safely used on only one thread, it may be better to do so.</p>
+
+<p>For example, Java has two classes that are almost equivalent, <code>StringBuffer</code> and <code>StringBuilder</code>. The difference is that <code>StringBuffer</code> is thread-safe, so a single instance of a <code>StringBuffer</code> may be used by multiple threads at once. <code>StringBuilder</code> is not thread-safe, and is designed as a higher-performance replacement for those cases (the vast majority) when the String is built by only on thread.</p>
+",1000,sadie,,,,2008-11-04 12:30:25,,,,0,,,
+282883,1,,,2008-11-12 03:03:49,,4,2633,"<p>We need to start adding internationalisation to our program. Thankfully not the whole thing yet, just a few bits, but I want the way we do it to scale up to potentially cover the whole program. The thing is, our program is based on plugins, so not all strings belong in the same place.</p>
+
+<p>As far as I understand it, Java's <code>ResourceBundle</code> work like this. You create a class that extends <code>ResourceBundle</code>, called something like <code>MyProgramStrings</code>, and also language-specific classes called <code>MyProgramStrings_fr</code>, <code>MyProgramStrings_es</code> etc. Each of these classes maps keys (strings) to values (any object). It's up to each of these classes where to get its data from, but a common place for them is a properties file.</p>
+
+<p>You look up values in two stages: first you get the correct bundle, then you query it for the string you want.</p>
+
+<pre><code>Locale locale = Locale.getDefault(); // or = new Locale(""en"", ""GB"");
+ResourceBundle rb = ResourceBundle.getBundle(""MyProgramStrings"", locale);
+String wotsitName = rb.getString(""wotsit.name"");
+</code></pre>
+
+<p>However, what we need is to combine the results of several locales into a single resource space. For example, a plugin needs to be able to override a string that's already defined, and have that new value returned whenever code looks up the string.</p>
+
+<p>I'm a little lost in all this. Can anybody help?</p>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong> David Waters asked:</p>
+
+<blockquote>
+  <p>I have put my answer at the bottom but I would be interested in hearing how you solved this problem.</p>
+</blockquote>
+
+<p>Well, we haven't got very far yet - long term WIBNIs always fall victim to the latest crisis - but we're basing it on the interface that a plugin implements, with the convention that resources have the same fully qualified name as the interface.</p>
+
+<p>So an interface <code>UsersAPI</code> may have various different implementations. A method <code>getBundle()</code> on that interface by default returns the equivalent of  <code>ResourceBundle.get(""...UsersAPI"", locale)</code>. That file can be replaced, or implementations of UsersAPI can override the method if they need something more complicated.</p>
+
+<p>So far that does what we need, but we're still looking at more flexible solutions based on the plugins.</p>
+",1000,sadie,1000,Marcus Downing,2009-03-23 00:07:42,2009-03-23 00:07:42,Locales and ResourceBundles in a plugin-based program,<java><internationalization><locale><resourcebundle>,4,1,2,,
+364716,2,,364642,2008-12-13 02:48:07,,2,,"<p>Use <a href=""http://tinymce.moxiecode.com/"" rel=""nofollow"">TinyMCE</a> and turn off the toolbars.</p>
+
+<p>Seriously, making a WYSIWYG editor for the web is a lot more complicated than it sounds and there are a million ways you can go wrong. You could spend the next two months battling with different browsers and stuff that breaks for no good reason, or you can trust the people who know more about the subject than you or I do.</p>
+
+<p>TinyMCE is impressively configurable, and you can hide all the toolbars just by using the simplest configuration options:</p>
+
+<pre><code>tinyMCE.init({
+    mode: 'textareas',
+    theme: 'advanced',
+    theme_advanced_buttons1 : '',
+    theme_advanced_buttons2 : '',
+    theme_advanced_buttons3 : '',
+    theme_advanced_statusbar_location : ""none"",
+});
+</code></pre>
+
+<p>You can also use normal CSS to make the </p>
+
+<pre><code>.mceLayout {
+    background: none !important;
+    border: none !important;
+}
+</code></pre>
+
+<p>I'm not sure what you want the WYSIWYG area for, but chances are you'll need to get the contents at some point. You can do this with simple Javascript:</p>
+
+<pre><code>var editor = tinyMCE.get('editorid');
+var stuff = editor.getContent();
+</code></pre>
+
+<p>It's free, easy to use, and proven reliable by <em>lots</em> of users. There's no good reason to reinvent the wheel.</p>
+",1000,sadie,,,,2008-12-13 02:48:07,,,,0,,,
+408042,1,409041,,2009-01-02 21:09:21,,8,18903,"<p>We use iText to generate PDFs from Java (based partly on recommendations on this site). However, embedding a copy of our logo in an image format like GIF results in it looking a bit strange as people zoom in and out.</p>
+
+<p>Ideally we'd like to embed the image in a vector format, such as EPS, SVG or just a PDF template. The website claims that EPS support has been dropped, that embedding a PDF or PS within a PDF can result in errors, and it doesn't even mention SVG.</p>
+
+<p>Our code uses the Graphics2D API rather than iText directly, but we'd be willing to break out of AWT mode and use iText itself if it achieved the result. How can this be done?</p>
+",1000,sadie,,,,2015-01-20 12:32:31,Vector graphics in iText PDF,<java><image><pdf><vector><itext>,4,0,9,,
+419091,2,,419021,2009-01-07 03:25:42,,9,,"<p>If you have a variable that comes from user input, it's essential that you use the ? rather than concatenating the strings. Users might enter a string maliciously, and if you drop the string straight into SQL it can run a command you didn't intend.</p>
+
+<p>I realise this one is overused, but it says it perfectly:</p>
+
+<p><img src=""http://imgs.xkcd.com/comics/exploits_of_a_mom.png"" alt=""Little Bobby Tables"" /></p>
+",1000,sadie,,,,2009-01-07 03:25:42,,,,1,,,
+435571,2,,435553,2009-01-12 14:30:45,,19,,"<p>There is some overhead with reflection, but it's a lot smaller on modern VMs than it used to be.</p>
+
+<p>If you're using reflection to create every simple object in your program then something is wrong. Using it occasionally, when you have good reason, shouldn't be a problem at all.</p>
+",1000,sadie,,,,2009-01-12 14:30:45,,,,0,,,
+450364,2,,450341,2009-01-16 13:09:22,,14,,"<p>If you want to keep algorithms secret, don't push it to the client side. No form of obfuscation or protection is ever perfect.</p>
+
+<p>Also, when you have calculations on the client side, you should <strong>always</strong> check the results on the server, rather than just assuming they're correct. <strong>Assume that the client is compromised.</strong></p>
+",1000,Marcus Downing,,,,2009-01-16 13:09:22,,,,1,,,
+454504,2,,453208,2009-01-18 02:10:14,,1,,"<p>Since years, months and even days can have uneven lengths, you can't start by subtracting the two dates to get a simple duration. If you want the result to match up with how human beings treat dates, you instead have to work with real dates, using your language's built in functions that understand dates better than you ever will.</p>
+
+<p>How that algorithm is written depends on the language you use, because each language has a different set of functions. My own implementation in Java, using the awkward but technically correct GregorianCalendar:</p>
+
+<pre><code>Term difference (Date from, Date to) {
+    GregorianCalendar cal1 = new GregorianCalendar();
+    cal1.setTimeInMillis(from.getTime());
+
+    GregorianCalendar cal2 = new GregorianCalendar();
+    cal2.setTimeInMillis(to.getTime());
+
+    int years = cal2.get(Calendar.YEAR) - cal1.get(Calendar.YEAR);
+    int months = cal2.get(Calendar.MONTH) - cal1.get(Calendar.MONTH);
+    int days = cal2.get(Calendar.DAY_OF_MONTH) - cal1.get(Calendar.DAY_OF_MONTH);
+    if (days &lt; 0) {
+        months--;
+        days += cal1.getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
+    if (months &lt; 0) {
+        years--;
+        months += 12;
+    }
+    return new Term(years, months, days);
+}
+</code></pre>
+
+<p>This may not be perfect, but it delivers human-readable results. Term is a class of my own for storing human-style periods, since Java's date libraries don't have one.</p>
+
+<p>For future projects I plan to move to the much better Joda date/time library, which does have a Period class in it, and will probably have to rewrite this function.</p>
+",1000,Marcus Downing,,,,2009-01-18 02:10:14,,,,0,,,
+454547,2,,454494,2009-01-18 02:49:53,,0,,"<p>There's no shame in borrowing working code if it's the best tool for the job, provided the author's licence conditions allow it - real programmers do it all the time. But for academic purposes there is a problem if you could be percieved as being at all secretive or deceptive about it. To avoid that, I'd reference it both in the code with a big, clear comment, and in the report. Full disclosure means you can't be accused of doing anything wrong.</p>
+",1000,Marcus Downing,,,,2009-01-18 02:49:53,,,,0,,,
+473417,2,,473357,2009-01-23 15:54:03,,3,,"<p>There's a great danger in relational design when you try to create generalisations that aren't actually true, but look elegant. If you have a general table with a type field, that introduces a form of indirection that has to be resolved in your code instead, which can hurt both performance and the clarity of the code.</p>
+
+<p>On the other hand, such indirection can have its uses, and for certain purposes I use it quite a lot. The question you have to ask is whether Computer and Component really are aspects of the same thing, or whether you're just fudging them together because it sounds good.</p>
+",1000,Marcus Downing,,,,2009-01-23 15:54:03,,,,2,,,
+478496,2,,478474,2009-01-25 23:12:44,,0,,"<p>Floating point math is always approximate, in any language, because that's how CPUs work. If you care about the absolute precision of your answers - for example, because you're dealing with money - then you shouldn't use floating point.</p>
+",1000,Marcus Downing,,,,2009-01-25 23:12:44,,,,3,,,
+487884,2,,10877,2009-01-28 14:49:18,,0,,"<p>I have it. Try the following:</p>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;
+&lt;style type='text/css'&gt;
+
+    ol { counter-reset: item; }
+
+    li { display: block; }
+
+    li:before { content: counter(item) "")""; counter-increment: item; 
+        display: inline-block; width: 50px; }
+
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;ol&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+    &lt;li&gt;Something&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/body&gt;
+</code></pre>
+
+<p>The catch is that this <em>definitely</em> won't work on older or less compliant browsers: <code>display: inline-block</code> is a very new property.</p>
+",1000,Marcus Downing,,,,2009-01-28 14:49:18,,,,0,,,
+494010,2,,493996,2009-01-30 00:00:11,,2,,"<p>YouTube may use Flash for the player, but the video itself is downloaded as a fairly normal format. If you know the URL - which is in the HTML file - then you can capture it.</p>
+
+<p>Quicktime and Windows Media streams can also be captured. Any stream that users can play can also be captured somehow. <strong>No form of protection can ever be unbreakable</strong>.</p>
+
+<p>I suppose the most secure method would be to write your own browser plugin, but that's insane. Using a proprietary format makes capturing the video harder, but still not impossible.</p>
+",1000,Marcus Downing,,,,2009-01-30 00:00:11,,,,0,,,
+494055,2,,493973,2009-01-30 00:23:01,,15,,"<p>In theory, there's nothing that dynamic languages can do and static languages can't. Smart people put a lot of work into making <em>very good</em> dynamic languages, leading to a perception at the moment that dynamic languages are ahead while static ones need to catch up.</p>
+
+<p>In time, this will swing the other way. Already various static languages have:</p>
+
+<ul>
+<li><p>Generics, which make static types less stupid by letting it select the right type when objects are passed around, saving the programmer from having to cast it themselves</p></li>
+<li><p>Type inference, which saves having to waste time on writing the stuff that should be obvious</p></li>
+<li><p>Closures, which among <em>many</em> other things help to separate mechanism from intention, letting you pull together complicated algorithms from mostly existing ingredients.</p></li>
+<li><p>Implicit conversions, which lets you simulate ""monkey patching"" without the risks it usually involves.</p></li>
+<li><p>Code loading and easy programmatic access to the compiler, so users and third parties can script your program. Use with caution!</p></li>
+<li><p>Syntaxes that are more conducive to the creation of Domain Specific Languages within them.</p></li>
+</ul>
+
+<p>...and no doubt more to come. The dynamic movement has spawned some interesting developments in static language design, and we all benefit from the competition. I only hope more of these features make it to the mainstream.</p>
+
+<p>There's one place where I don't see the dominant dynamic language being replaced, and that's Javascript in the browser. There's just too much of an existing market to replace, so the emphasis seems to be towards making Javascript itself better instead.</p>
+",1000,Marcus Downing,,,,2009-01-30 00:23:01,,,,2,,,
+501184,2,,470707,2009-02-01 17:18:29,,1,,"<p>As Greg Hurlman says, you should do the calculations yourself on the server. This is for more than just convenience, there's actually a good reason for it.</p>
+
+<p>Any file that the customer has, they have the potential to screw with. I don't know what the PDF forms are for, but chances are it's connected to money somehow, so the potential exists for people to cheat by making the calculations show the wrong result. If you trust the calculations done on the client side, you have no way of detecting it.</p>
+
+<p>When you recieve the PDF form from the client, you should redo all calculations so that you know they're correct. Then if you also have the client's versions to compare to, you should check whether they've been screwed with.</p>
+
+<p>Don't think your clients are that untrustworthy? Good for you, but the evidence disagrees. One of my earliest introductions to programming was opening up the savegames for SimCity to give myself more money. If the opportunity exists to cheat in some way, then at some point people will try it.</p>
+",1000,Marcus Downing,,,,2009-02-01 17:18:29,,,,2,,,
+511535,2,,511013,2009-02-04 14:19:10,,0,,"<p>Before taking any dangerous, time-consuming or strategic actions, you should establish exactly what in your program is using up so much of the memory. You may think you know the answer, but until you have evidence in front of you, you don't. There's the possibility that memory is being used by something you weren't expecting.</p>
+
+<p>Use a profiler. It doesn't matter which one, <a href=""http://stackoverflow.com/questions/14762/please-recommend-a-java-profiler"">there are plenty of them</a>. First find out how much memory is being used up by each object. Second, step though iterations of your serializer, compare memory snapshots and see what objects or data are created.</p>
+
+<p>The answer will most likely be to stream the output rather than building it in memory. But get evidence first.</p>
+",1000,Marcus Downing,,,,2009-02-04 14:19:10,,,,0,,,
+524061,2,,523949,2009-02-07 16:27:44,,6,,"<p>Short answer, no. Long answer, it depends.</p>
+
+<p>You can store binary data in a bunch of ways - abusing a number, using a BINARY OR VARBINARY, using a BLOB or TINYBLOB, etc. BINARY types will generally be faster than BLOB types, provided your data is a known size.</p>
+
+<p>However, relational databases aren't designed for doing anything intelligent with binary data. On a project I used to work on, there was a table where each record had as specific binary pattern - stored as some sort of integer - and searching required a lot of ANDs, ORs, XORs and NOTs. It never really worked very well, performance sucked, and it held the whole project down. Looking back, I would have taken a completely different approach.</p>
+
+<p>So if you just want to drop the data in and pull it out again, great. If you want to use it for anything intelligent, tough.</p>
+
+<p>The situation may be different on other database vendors. In fact, have you considered using something else in place of the database? Some sort of object persistence?</p>
+",1000,Marcus Downing,,,,2009-02-07 16:27:44,,,,0,,,
+569861,1,569982,,2009-02-20 15:03:55,,3,8351,"<p>As a result of <a href=""http://stackoverflow.com/questions/246540/apache-tomcat-error-wrong-pages-being-delivered"">horrible, horrible errors</a>, we've changed how we connect Apache to Tomcat. We were using <code>mod_jk</code>:</p>
+
+<pre><code>JkMount /path ajp13
+</code></pre>
+
+<p>Now we're using <code>mod_proxy_ajp</code>:</p>
+
+<pre><code>ProxyPass /path ajp://localhost:8009/path
+ProxyPassReverse /path ajp://localhost:8009/path
+</code></pre>
+
+<p>However, there's a feature that <code>JkMount</code> offered but <code>ProxyPass</code> doesn't: the ability to select on file types. This made it possible to proxy html files, but not images - in other words, to let the nice fast Apache serve the static stuff, and resorting to the slow Tomcat only for the dynamic stuff.</p>
+
+<pre><code>JkMount /*.html ajp13
+</code></pre>
+
+<p>Is there any way of achieving this with <code>ProxyPass</code>? Possibly using a surrounding <code>&lt;Location&gt;</code> directive or something like that?</p>
+",1000,Marcus Downing,,,,2013-04-15 01:54:16,Using ProxyPass for pages but not images,<apache><proxy><mod-jk><ajp><proxypass>,4,0,2,,
+571605,2,,569861,2009-02-20 23:08:12,,1,,"<p>kmkaplan's post is the right answer, but it gave me the error:</p>
+
+<pre><code>Syntax error on line 32 of .../httpd-vhosts.conf:
+ProxyPass Unable to parse URL
+</code></pre>
+
+<p>It worked when I changed the directive to read:</p>
+
+<pre><code>ProxyPathMatch ^/(path/.*\.html)$ ajp://localhost:8009/$1
+</code></pre>
+
+<p>I can only assume that putting the <code>$1</code> right next to the port number <code>8009</code> was confusing it.</p>
+",1000,Marcus Downing,1000,Marcus Downing,2009-02-21 00:09:34,2009-02-21 00:09:34,,,,0,,,
+577744,2,,530307,2009-02-23 14:09:28,,2,,"<p>You have two choice:</p>
+
+<ul>
+<li><p>Do a complete round trip, ie don't update the UI until you know the item has been successfully deleted, OR</p></li>
+<li><p>Lie to your users</p></li>
+</ul>
+
+<p>If the results of the operation are questionable and important, the use the first option. If you're confident of the result, and people don't need to know the details, use the second.</p>
+
+<p>Really, nothing keeps people happy so much as being successfully lied to.</p>
+",1000,Marcus Downing,,,,2009-02-23 14:09:28,,,,1,,,
+751363,1,755399,,2009-04-15 11:52:25,,4,2928,"<p>In response to <a href=""http://stackoverflow.com/questions/246540/apache-tomcat-error-wrong-pages-being-delivered"">this error where pages are delivered incorrectly</a>, we're considering a switch from Apache + Tomcat to Glassfish. This is inspired not by features, but by frustration with a fault that just won't go away.</p>
+
+<p>The questions are:</p>
+
+<ul>
+<li><p>Should we use Glassfish in cooperation with Apache, or replace Apache entirely? The interface between Apache and Tomcat is clearly somehow connected to the error we're seeing, and the last thing we need is to have the same problem turning up again. On the flip side, we will have need of PHP, which Apache is already set up to handle.</p></li>
+<li><p>Should we use Glassfish 2 or 3? Version 3 seems to be a complete rewrite, and comments here and elsewhere suggests that a lot of people are sticking with 2.</p></li>
+<li><p>How well can Apache and Glassfish cooperate on the same server? For example, Apache could simplely <code>ProxyPass</code> all requests to selected domains over to Glassfish (as opposed to the much more specific proxying to Tomcat that it's doing at the moment).</p></li>
+<li><p>Is there an easier way? I'd hate to do all this work for nothing.</p></li>
+<li><p>Does this question belong on serverfault.com?</p></li>
+</ul>
+",1000,,,,,2012-07-29 01:17:38,Switching from Tomcat to Glassfish,<apache><tomcat><glassfish>,2,0,2,,
+847224,1,847259,,2009-05-11 08:41:20,,7,6899,"<p>I'm developing a simple RESTful API, and utterly in love with how minimalistic it is. But I'm uncertain as to the correct HTTP response codes for various situations:</p>
+
+<ol>
+<li><p>Incorrectly formed query</p></li>
+<li><p>Correctly formed query refers to a resource which does not exist</p></li>
+<li><p>Resource successfully deleted</p></li>
+<li><p>Resource successfully edited</p></li>
+</ol>
+
+<p>I'm currently thinking that 1 would be <code>403 Forbidden</code>; 2 would be <code>410 Gone</code>; 3 and 4 would be <code>202 Accepted</code>. Do they sound right?</p>
+",1000,,,,,2009-05-11 09:11:09,RESTful HTTP response codes,<http><rest><response>,5,0,7,,
+873691,2,,873510,2009-05-17 01:21:21,,40,,"<p>Because they did it in a hurry in the early days of Java, and didn't realise what the implications would be four versions later.</p>
+
+<p>Generics were supposed to be part of the design of Java from the beginning, but the feature was dropped as being too complicated and, at the time, unnecessary. As a result, lots of code in the standard libraries is written with the assumption of non-generic collections. It took the prototype language ""Pizza"" from Martin Odersky to show how they could be done fairly well while maintaining near perfect backwards compatibility, with both Java code and bytecode. The prototype led to Java 5, in which the collections classes were retrofitted with generics in a way that allowed old code to keep working.</p>
+
+<p>Unfortunately, if they were to retroactively make <code>Properties</code> inherit from <code>Map&lt;String, String&gt;</code>, then the following previously valid code would stop working:</p>
+
+<pre><code>Map&lt;Object, Object&gt; x = new Properties()
+x.put(""flag"", true)
+</code></pre>
+
+<p>Why anybody would do that is beyond me, but Sun's commitment to backwards compatibility in Java has gone beyond heroic into the pointless.</p>
+
+<p>What's now appreciated by most educated observers is that <code>Properties</code> should never have inherited from <code>Map</code> at all. It should instead wrap around <code>Map</code>, exposing only those features of Map that make sense.</p>
+
+<p>Since reinventing Java, Martin Odersky has gone on to create the new Scala language, which is cleaner, inherits fewer mistakes, and breaks new ground in a number of areas. If you're finding Java's niggles annoying, take a look at it.</p>
+",1000,,1000,,2009-05-17 22:03:40,2009-05-17 22:03:40,,,,4,,,
+887447,1,893895,,2009-05-20 11:44:50,,0,2700,"<p>I'm writing a WordPress plugin that filters <strong>the_content</strong>, and I'd like to make use of the <code>&lt;!--more--&gt;</code> tag, but it appears that it has been stripped out by the time it reaches me. This appears to be not a filter, but a function of the way WordPress works.</p>
+
+<p>I could of course resort to reloading the already-loaded content from the database, but that sounds like it might cause other troubles. Is there any good way for me to get the raw content without the <code>&lt;!--more--&gt;</code> removed?</p>
+",1000,,,,,2015-11-01 01:02:53,WordPress plugin: finding the <!--more--> in the_content,<wordpress><filter><wordpress-plugin>,3,2,,,
+887534,2,,800653,2009-05-20 12:04:28,,0,,"<p>I did something very similar not long ago, and I did it by cheating.</p>
+
+<p>If you find the built in rewrite rules too complicated or unable to do the job, you may find it easier to catch the request and filter the results. A simplified version:</p>
+
+<pre><code>add_action('parse_request', 'my_parse_request');
+
+function my_parse_request (&amp;$wp) {
+  $path = $wp-&gt;request;
+
+  $groups = array();
+  if (preg_match(""%shop/product/([a-zA-Z0-9-]+)%"", $path, $groups)) {
+    $code = $groups[1];
+    $product = get_product($code); // your own code here
+    if (isset($product)) {
+      add_filter('the_posts', 'my_product_filter_posts');
+    }
+  }
+}
+
+function my_product_filter_posts ($posts) {
+  ob_start();
+  echo ""stuff goes here"";  //  your body here
+  $content = ob_get_contents();
+  ob_end_clean();
+
+  return array(new DummyResult(0, ""Product name"", $content));
+}
+</code></pre>
+
+<p>To explain:</p>
+
+<ol>
+<li><p>The action on <code>parse_request</code> is called before the database lookup. Based on the URL, it installs the other actions and filters.</p></li>
+<li><p>The filter on posts replaces the results of the database lookup with fake results.</p></li>
+</ol>
+
+<p>DummyResult is a simple class that has the same fields as a post, or just enough of them to get away with it:</p>
+
+<pre><code>class DummyResult {
+  public $ID;
+  public $post_title;
+  public $post_content;
+
+  public $post_author;
+  public $comment_status = ""closed"";
+  public $post_status = ""publish"";
+  public $ping_status = ""closed"";
+  public $post_type = ""page"";
+  public $post_date = """";
+
+  function __construct ($ID, $title, $content) {
+    $this-&gt;ID = $ID;
+    $this-&gt;post_title = $title;
+    $this-&gt;post_content = $content;
+
+    $this-&gt;post_author = get_default_author(); // implement this function
+  }
+}
+</code></pre>
+
+<p>There's a lot of homework left for the reader in the above, but it's an ugly, working approach. You'll probably want to add a filter for <code>template_redirect</code>, to replace the normal page template with a product-specific one. And you may need to adjust the URL regex if you want pretty permalinks.</p>
+",1000,,,,,2009-05-20 12:04:28,,,,0,,,
+925708,2,,925653,2009-05-29 12:18:51,,4,,"<blockquote>
+  <p>I looked at the write up of CSS on
+  Wikipedia
+  (<a href=""http://en.wikipedia.org/wiki/Cascading_Style_Sheets"" rel=""nofollow"">http://en.wikipedia.org/wiki/Cascading_Style_Sheets</a>)
+  and a few other comments about CSS and
+  became discouraged about the lack of
+  full support for CSS in the different
+  Layout engines, so I am just curious
+  if there is an alternative or I must
+  learn to also use CSS filters.</p>
+</blockquote>
+
+<p>CSS is <em>the</em> standard. There is no alternative.</p>
+
+<p>All browsers support the basic CSS features. Each new version of each of the (four?) main browser lines comes with increased support for the standard, but websites that use these features will be broken to any users in an earlier version. There are two answers to this:</p>
+
+<ol>
+<li><p>""Graceful degredation"" (or its twin, ""Progressive enhancement"" - google it), in which the page takes advantage of advanced features if they're available, while still continuing to work if they're not.</p></li>
+<li><p>Who are your audience? If you're lucky enough to know that 99.8% of visitors to your website will be using at least IE7, then you don't need to worry about the CSS features that are broken in IE6. This will depend on your own business though, so check the facts first.</p></li>
+</ol>
+
+<p>The worst thing you can do is code to the quirks of a single specific browser, because that leads to a page that's broken not only on other browsers, but even on later versions of the same browser.</p>
+",1000,,,,,2009-05-29 12:18:51,,,,0,,,
+939570,2,,939506,2009-06-02 13:34:28,,0,,"<p>Assuming you pasted the code exactly, the <em>first</em> error is right at the beginning, when you end the first quote. It expects that to read:</p>
+
+<pre><code>echo ' title .';
+</code></pre>
+
+<p>The two quotes next to each other don't make any sense.</p>
+",1000,,,,,2009-06-02 13:34:28,,,,1,,,
+956361,1,962928,,2009-06-05 15:05:23,,20,39087,"<p>Is there any way I connect Apache to Tomcat using an HTTP proxy such that Tomcat gets the correct incoming host name rather than localhost? I'm using this directive in apache:</p>
+
+<pre><code>ProxyPass /path http://localhost:8080/path
+</code></pre>
+
+<p>But it comes through as localhost, which is useless when we have a bunch of sites on the same server. I could set the host manually in the server config:</p>
+
+<pre><code>&lt;Connector port=""8080"" protocol=""HTTP/1.1""
+           connectionTimeout=""20000""
+           proxyName=""pretend.host"" proxyPort=""80"" /&gt;
+</code></pre>
+
+<p>But that again doesn't serve more than one site. And I don't like the idea of using a different internal port for each site, that sounds really ugly.</p>
+
+<p>Is there no way to transfer the port when I proxy it?</p>
+
+<p>(If you ask why I don't just use AJP, the answer is <a href=""http://stackoverflow.com/questions/246540/apache-tomcat-error-wrong-pages-being-delivered"">this error</a>. I'm trying everything I can before giving up on <a href=""http://serverfault.com/questions/589/alternatives-to-apache"">Tomcat and Apache entirely</a>)</p>
+",1000,,,,,2016-08-26 18:27:38,Apache + Tomcat: Using mod_proxy instead of AJP,<apache><tomcat><mod-proxy><ajp>,3,0,23,,
+1056376,2,,1055999,2009-06-29 02:52:14,,0,,"<p>Scala has been very good for making me see programming in a new light. I haven't used it for anything worklike yet, but it's still affected how I write code in other languages - not just Java, but PHP. I recently wrote a simple parser for a WordPress plugin, and the code is vastly more functional and immutable than it would have been six months ago, and better for it, despite the lack of enforcement in PHP.</p>
+
+<p>The only other language to have affected the way I work so dramatically is Perl, nearly a decade earlier. Perl has contributed a lot to the way I pseudo-code, even if I never touch the language itself.</p>
+
+<p>Many people compare the functional aspects of Scala to Haskell. You may even imagine that knowing Haskell means you already know all Scala could teach you, but I don't believe that. The way Scala combines OO and function has a way of making it seem like that's actually the truest form of both of them.</p>
+",1000,,,,,2009-06-29 02:52:14,,,,3,,,
+1056393,2,,1056358,2009-06-29 03:02:20,,1,,"<p>If the list of possible values really is that small, then write the method by hand. The performance benefit of a hashtable isn't felt in comparison to a mere 3 string comparisons.</p>
+
+<p>But if, as I suspect, the number of values is much bigger than you've written then a map makes sense, in which case you should cache the map when the enumeration is created.</p>
+
+<pre><code>public enum SigninErrorCodes {
+  InvalidUser(""a0""), InvalidPassword(""b5""), NoServerResponse(""s2"");
+
+  private final String _code;
+  SigninErrorCodes( String code ) { _code = code; }
+  public String code() { return _code; }
+
+  private static final Map&lt;String, SigninErrorCodes&gt; m;
+
+  static {
+    SigninErrorCodes[] verbs = values();
+    m = new HashMap&lt;String,SigninErrorCodes&gt;(verbs.length * 2);
+    for( int i=0; i&lt;verbs.length; i++ )
+      m.put( verbs[i].code(), verbs[i] );
+  }
+
+
+  public static SigninErrorCodes deref( String code ) {
+    return m.get( code );
+  }
+}
+</code></pre>
+
+<p>Note that the best size to give a hash map isn't the number of elements, but about twice that. A lower number results in key conflicts.</p>
+",1000,,,,,2009-06-29 03:02:20,,,,4,,,
+1164631,1,1164661,,2009-07-22 11:28:53,,27,15153,"<p>I need an Ant script that will copy one folder to several other places. As a good obedient programmer, I want not to repeat myself. Is there any way of taking a fileset like this:</p>
+
+<pre><code>&lt;copy todir=""${target}/path/to/target/1""&gt;
+    &lt;fileset dir=""${src}""&gt;
+        &lt;exclude name='**/*svn' /&gt;
+    &lt;/fileset&gt;
+&lt;/copy&gt;
+</code></pre>
+
+<p>And storing the <code>fileset</code> in a variable so it can be re-used?</p>
+",1000,,1064245,,2014-07-16 18:22:52,2014-07-16 18:22:52,Ant: copy the same fileset to multiple places,<ant>,3,0,4,,
+1175011,2,,1174872,2009-07-23 23:15:02,,0,,"<p>For web projects I usually use:</p>
+
+<pre><code>&lt;project name&gt;
+  dev
+    src
+    lib
+    www
+    build.xml
+  build
+    www
+    bin
+  www
+</code></pre>
+
+<p>The <code>www</code> folder in src is the original. The <code>www</code> folder in build is where that gets combined with the contents of similar folders to produce what needs to be uploaded. The <code>www</code> folder outside is where I run a local copy, complete with temporary files and other such garbage. I have an ant script in <code>build.xml</code> to copy things around.</p>
+
+<p>I'd like to know if there is any sort of standard.</p>
+",1000,,,,,2009-07-23 23:15:02,,,,1,,,
+1178224,2,,1178141,2009-07-24 14:54:14,,6,,"<p>As <a href=""http://stackoverflow.com/questions/1178141/what-is-the-problem-with-this-jquery-code/1178189#1178189"">chaos says</a>, you're probably calling <code>click()</code> each time you add one, and they're accumulating.</p>
+
+<p>If you're adding these items to the document dynamically, and need to make sure this function is added to every one you add, how about using live?</p>
+
+<pre><code>$('#contents').on('click', '.newContentLink', function() {
+    $(""#test"").append(""1"");
+});
+</code></pre>
+
+<p>This will make sure the rule is dynamically applied once to any qualifying class in the document.</p>
+",1000,,1000,,2012-09-19 09:13:17,2012-09-19 09:13:17,,,,6,,,
+1198968,2,,1198912,2009-07-29 09:14:09,,2,,"<p>Use an element with <code>overflow: hidden</code>, and change that style when they click on more.</p>
+
+<p>HTML:</p>
+
+<pre><code>&lt;div&gt;
+  &lt;div id='content'&gt;...&lt;/div&gt;
+  &lt;div&gt;&lt;a id='morebutton'&gt;More&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>CSS:</p>
+
+<pre><code>#content {
+  height: 200px;
+  overflow: hidden;
+}
+</code></pre>
+
+<p>JS (using jQuery):</p>
+
+<pre><code>$(""#morebutton"").click(function() {
+  $(""#content"").css(overflow: ""visible"");
+}
+</code></pre>
+",1000,,,,,2009-07-29 09:14:09,,,,0,,,
+1320058,1,1320140,,2009-08-24 01:07:02,,3,611,"<p>I have a Unicode (UTF-8 without BOM) text file within a jar, that's loaded as a resource.</p>
+
+<pre><code>URL resource = MyClass.class.getResource(""datafile.csv"");
+InputStream stream = resource.openStream();
+BufferedReader reader = new BufferedReader(
+    new InputStreamReader(stream, Charset.forName(""UTF-8"")));
+</code></pre>
+
+<p>This works fine on Windows, but on Linux it appear not to be reading the file correctly - accented characters are coming out broken. I'm aware that different machines can have different default charsets, but I'm giving it the correct charset. Why would it not be using it?</p>
+",1000,,,,,2009-08-24 01:49:58,Unicode in Jar resources,<java><unicode><utf-8><jar>,2,2,,,
+1379361,2,,1379022,2009-09-04 13:43:14,,2,,"<p>The <code>Application</code> trait and its use is at fault here. When you have code running within the body of a <code>Application</code> rather than within a <code>main</code> method, that code is actually running as part of the constructor. So at the point where you call the testActor() method, the object hasn't actually finished initialising.</p>
+
+<p>To fix it, move the println line into a main method:</p>
+
+<pre><code>def main (args: Array[String]) {
+    println(""Result: "" + testActor())
+}
+</code></pre>
+
+<p>Because this problem happens so easily, the <code>Application</code> trait is considered to be bad news.</p>
+",1000,,,,,2009-09-04 13:43:14,,,,1,,,
+1385931,1,1387220,,2009-09-06 15:32:06,,17,9957,"<p>When I first started looking at Scala, I liked the look of for-comprehensions. They seemed to be a bit like the foreach loops I was used to from Java 5, but with functional restrictions and a lot of sweet syntactic niceness.</p>
+
+<p>But as I've absorbed the Scala style, I find that every time I could use a for-comprension I'm using <code>map</code>, <code>flatMap</code>, <code>filter</code>, <code>reduce</code> and <code>foreach</code> instead. The intention of the code seems clearer to me that way, with fewer potential hidden surprises, and they're usually shorter code too.</p>
+
+<p>As far as I'm aware, for-comprehensions are always compiled down into these methods anyway, so I'm wondering: what are they actually for? Am I missing some functional revalation (it wouldn't be the first time)? Do for-comprehensions do something the other features can't, or would at least be much clumsier at? Do they shine under a particular use case? Is it really just a matter of personal taste?</p>
+",1000,,,,,2011-09-09 10:21:29,Scala's for-comprehensions: vital feature or syntactic sugar?,<scala><list-comprehension>,5,1,10,,
+1675318,1,,,2009-11-04 17:16:46,,3,2404,"<p>I'm running a validation on form data, such that when somebody hits the submit button it checks the form's contents first. A number of fields (could be zero, could be more than one, depending on the page) have things like unique codes which require checking with the server first. I'm running an asynchronous request to the server, which simply responds '<code>ok</code>' or '<code>taken</code>' for each field. If any of the fields have errors, the page doesn't submit.</p>
+
+<p>On the one hand, this should be asynchronous: it should continue validating the rest of the form fields while that request is off processing, including firing off other requests. If the call is made synchronously, then it visibly slows down feedback on later fields.</p>
+
+<p>On the other hand, I want to make sure all the validation requests have returned (or timed out) before responding yes or no to the <code>validate()</code> method, and either allowing the submit to proceed or not. So if there are two fields that need validating then the <code>validate()</code> method should fire off those two AJAX requests, process the rest of the fields, and then wait until those two requests have returned before finally returning.</p>
+
+<p>I can probably achieve this with some ugly homebaked solution (probably involving an array of random ids representing the requests in progress or something), but before I do is there any built-in function, plugin or standard technique I should be using instead?</p>
+
+<p><hr></p>
+
+<p><strong>Clarification</strong></p>
+
+<p>What I think I need is to make the code wait for the result from one or more asynchronous requests before proceeding with a method. This isn't the same as a callback, because the result of the method depends on the result of the requests. It isn't the same as a synchronous request because there may be more than one of them.</p>
+
+<p>I'm using this to check the form before submitting:</p>
+
+<pre><code>$(""form"").submit(function () {
+    return validate($(this));
+});
+</code></pre>
+
+<p>If the <code>validate()</code> method returns false, then the form doesn't submit. <code>validate()</code> hilights any fields that aren't accepted. For normal fields, <code>validate()</code> looks something like this (vastly simplified version, without the feedback):</p>
+
+<pre><code>function validate(form) {
+    resetWarnings(form);
+    var ok = true;
+
+    //  required fields
+    form.find(""input.required"").each(function () {
+        var field = $(this);
+        if (field.val() === """") {
+            ok = false;
+        }
+        return this; // meaningless in this case but a good habit to keep
+    });
+
+    //  fields that matches a pattern
+    form.find(""input.pattern"").each(function () {
+        var field = $(this);
+        var pattern = field.data(""pattern"");
+        if (!field.val().match(pattern)) {
+            ok = false;
+        }
+        return this;
+    });
+
+    //  various other rules for other sorts of field
+    ...
+
+    return ok;
+}
+</code></pre>
+
+<p>For AJAX fields it's more like this:</p>
+
+<pre><code>    form.find(""input.lookup"").each(function () {
+        var field = $(this);
+        var url = field.data(""lookup"");
+        $.ajax({
+            url: url,
+            data: { code: field.val() },
+            success: function (result) {
+                if (result === ""taken"") {
+                    ok = false;
+                }
+            }
+        }
+    });
+</code></pre>
+
+<p>But of course, <code>validate()</code> has already finished before the success method is called. So if I can make it wait until the ajax has been completed (either success or error) before returning, I can get the right result and stop the form being submitted. And if I made the ajax synchronous, then the entire method stops until it's done, which is wrong.</p>
+
+<p><hr></p>
+
+<p><strong>Further thought</strong></p>
+
+<p>Given Javascript's threading model (which is to say none at all), is what I'm asking for technically impossible?</p>
+",1000,,1000,,2009-11-04 20:19:44,2011-04-14 16:04:55,jQuery AJAX: collecting multiple asynchronous results,<jquery><ajax><asynchronous>,3,0,2,,
+1712357,2,,1712274,2009-11-11 01:06:44,,8,,"<p>An increasing trend is to not state the type at all, or to optionally state the type. This could be a dynamically typed langauge where there really is no type on the variable, or it could be a statically typed language which infers the type from the context.</p>
+
+<p>If the type is sometimes given and sometimes inferred, then it's easier to read if the optional bit comes afterwards.</p>
+
+<p>There are also trends related to whether a language regards itself as coming from the C school or the functional school or whatever, but these are a waste of time. The languages which improve on their predecessors and are worth learning are the ones that are willing to accept input from all different schools based on merit, not be picky about a feature's heritage.</p>
+",1000,,,,,2009-11-11 01:06:44,,,,0,,,
+1722811,2,,1671633,2009-11-12 15:00:52,,1,,"<p>The easy answer is usually to find an existing jQuery plugin that already does what you want. There are a lot of them out there, and even if one isn't perfect you can adapt or learn from it to get the desired result.</p>
+
+<p>To do it yourself, I'd suggest having two copies of the image: one inline with the list, and another on top that zooms in. That way the layout of the list doesn't depend on the zoomed image at all.</p>
+
+<p>Untested code, just thinking:</p>
+
+<pre><code>//  on page load, process selected images
+$(function () {
+  $('img.hoverme').each(function () {
+    var img = $(this);
+    var alt = $(""&lt;img src='"" + img.attr('src') + ""'/&gt;"");
+    img.after(alt);
+    alt.hide();
+
+    img.hover(function () {
+      var position = img.position();
+      alt.css({ 
+        position: ""absolute"",
+        top: position.top,
+        left: position.left,
+        width: 32,
+        height: 32
+      }).animate({
+        top: position.top - 16,
+        left: postion.left - 16,
+        width: 64,
+        height: 64
+      });
+    }, function () { });
+
+    alt.hover(function () { }, function () {
+      var position = img.position();
+      alt.animate({
+        top: position.top,
+        left: position.left,
+        width: 32,
+        height: 32
+      }, function () {
+        alt.hide();
+      });  // alt.animate
+    });  //  alt.hover
+
+  });  //  each
+});  // $(
+</code></pre>
+
+<p>When the mouse goes over the smaller image, the larger one is created hovering over it, and immediately expands in place. When the mouse leaves the larger image, it shrinks and then disappears.</p>
+",1000,,,,,2009-11-12 15:00:52,,,,0,,,
+1722923,2,,1722612,2009-11-12 15:15:22,,1,,"<p>When jQuery silently fails, it usually means that you have an empty selection. So the first thing to test is that the selector <code>$(""#editfrm &gt; input[id='FirstName']"")</code> really does produce the fields you think it does. Pull up firebug and type that selector into the console. If it works, it will produce an array with the input element you want. If not, it'll produce an empty list.</p>
+",1000,,,,,2009-11-12 15:15:22,,,,0,,,
+3165054,1,3165144,,2010-07-02 10:52:34,,2,228,"<p>A junior programmer in our office has an unfortunate (but understandable) habit of using Eclipse's ""Correct all the indentation in this file"" feature. As a result, his checked out copy includes thousands of lines that register as changes, simply because the whitespace is different. Accepting all these changes - while other people are also working on the same code, some of them in different offices - will lead to conflicts. At the same time we don't want to throw away all the work he's done.</p>
+
+<p>Are there any options for Darcs to ignore or normalise whitespace changes; or tools that can revert the differences?</p>
+",1000,,,,,2010-07-02 11:06:00,Whitespace in version control (darcs),<version-control><whitespace><darcs>,1,4,,,
+3255991,1,,,2010-07-15 13:35:33,,16,1355,"<p>There seems to be a lot of enthusiasm among Scala bloggers lately for the <strong>type classes</strong> pattern, in which a simple class has functionality added to it by an additional class conforming to some trait or pattern. As a vastly oversimplified example, the simple class:</p>
+
+<pre><code>case class Wotsit (value: Int)
+</code></pre>
+
+<p>can be adapted to the Foo trait:</p>
+
+<pre><code>trait Foo[T] {
+  def write (t: T): Unit
+}
+</code></pre>
+
+<p>with the help of this type class:</p>
+
+<pre><code>implicit object WotsitIsFoo extends Foo[Wotsit] {
+  def write (wotsit: Wotsit) = println(wotsit.value)
+}
+</code></pre>
+
+<p>The type class is typically captured at compile time with implicts, allowing both the Wotsit and its type class to be passed together into a higher order function:</p>
+
+<pre><code>def writeAll[T] (items: List[T])(implicit tc: Foo[T]) =
+  items.foreach(w =&gt; tc.write(w))
+
+writeAll(wotsits)
+</code></pre>
+
+<p>(before you correct me, I said it was an oversimplified example)</p>
+
+<p><strong>However</strong>, the use of implicits assumes that the precise type of the items is known at compile time. I find in my code this often isn't the case: I will have a list of some type of item List[T], and need to discover the correct type class to work on them.</p>
+
+<p>The suggested approach of Scala would appear to be to add the typeclass argument at all points in the call hierarchy. This can get annoying as an the code scales and these dependencies need to be passed down increasingly long chains, through methods to which they are increasingly irrelevant. This makes the code cluttered and harder to maintain, the opposite of what Scala is for.</p>
+
+<p>Typically this is where dependency injection would step in, using a library to supply the desired object at the point it's needed. Details vary with the library chosen for DI - I've written my own in Java in the past - but typically the point of injection needs to define precisely the object desired.</p>
+
+<p>Trouble is, in the case of a type class the precise value isn't known at compile time. It must be selected based on a polymorphic description. And crucially, the type information has been erased by the compiler. Manifests are Scala's solution to type erasure, but it's far from clear to me how to use them to address this issue.</p>
+
+<p>What techniques and dependency injection libraries for Scala would people suggest as a way of tackling this? Am I missing a trick? The perfect DI library? Or is this really the sticking point it seems?</p>
+
+<hr>
+
+<h2>Clarification</h2>
+
+<p>I think there are really two aspects to this. In the first case, the point where the type class is needed is reached by direct function calls from the point where the exact type of its operand is known, and so sufficient type wrangling and syntactic sugar can allow the type class to be passed to the point it's needed.</p>
+
+<p>In the second case, the two points are separated by a barrier - such as an API that can't be altered, or being stored in a database or object store, or serialised and send to another computer - that means the type class can't be passed along with its operand. In this case, given an object whose type and value are known only at runtime, the type class needs somehow to be discovered.</p>
+
+<p>I think functional programmers have a habit of assuming the first case - that with a sufficiently advanced language, the type of the operand will always be knowable. David and mkniessl provided good answers for this, and I certainly don't want to criticise those. But the second case definitely does exist, and that's why I brought dependency injection into the question.</p>
+",1000,,1000,,2010-07-17 12:31:29,2010-07-17 12:31:29,Scala: reconciling type classes with dependency injection,<scala><dependency-injection><implicit><typeclass>,2,2,10,,
+3802367,1,3804283,,2010-09-27 09:06:18,,3,1579,"<p>I'm using Solr to search for a long list of IDs like so:</p>
+
+<pre><code>ID:(""4d0dbdd9-d6e1-b3a4-490a-6a9d98e276be""
+    ""4954d037-f2ee-8c54-c14e-fa705af9a316""
+    ""0795e3d5-1676-a3d4-2103-45ce37a4fb2c""
+    ""3e4c790f-5924-37b4-9d41-bca2781892ec""
+    ""ae30e57e-1012-d354-15fb-5f77834f23a9""
+    ""7bdf6790-de0c-ae04-3539-4cce5c3fa1ff""
+    ""b350840f-6e53-9da4-f5c2-dc5029fa4b64""
+    ""fd01eb56-bc4c-a444-89aa-dc92fdfd3242""
+    ""4afb2c66-cec9-8b84-8988-dc52964795c2""
+    ""73882c65-1c5b-b3c4-0ded-cf561be07021""
+    ""5712422c-12f8-ece4-0510-8f9d25055dd9""...etc
+</code></pre>
+
+<p>This works up to a point, but above a certain size fails with the message: <strong>too many boolean clauses</strong>. You can increase the limit in solrconfig.xml, but this will only take it so far - and I expect the limit is there for a reason:</p>
+
+<pre><code>&lt;maxBooleanClauses&gt;1024&lt;/maxBooleanClauses&gt;
+</code></pre>
+
+<p>I could split the query into several little ones, but that would prevent me then sorting the results. There must be a more appropriate way of doing this?</p>
+",1000,,,,,2013-07-02 13:13:32,Solr search for lots of values,<search><lucene><solr>,1,3,,,
+3886457,1,3888579,,2010-10-07 22:48:33,,4,810,"<p><em><strong>Update</strong>: Clarified and expanded, since the original question was simplified too far</em></p>
+
+<p>I need a pair of traits, each of which refers to the other such that parent and child classes must relate to each other.</p>
+
+<pre><code>trait Parent [C &lt;: Child] {
+  def foo(c: C)
+}
+
+trait Child [P &lt;: Parent] {
+  def parent: P = ...
+  def bar = parent.foo(this)
+}
+</code></pre>
+
+<p>Such that implementing classes must come in pairs:</p>
+
+<pre><code>class ActualParent extends Parent [ActualChild] {
+  def foo(c: ActualChild) = ...
+}
+
+class ActualChild extends Child [ActualParent] {
+}
+</code></pre>
+
+<p>Unfortunately, the compiler doesn't like these traits because the generic types aren't complete. Instead of <code>C &lt;: Child</code> it needs to say <code>C &lt;: Child[</code><em>something</em><code>]</code>. Leaving them unspecified doesn't work either:</p>
+
+<pre><code>trait Parent [C &lt;: Child[_]] {
+  def foo(c: C)
+}
+
+trait Child [P &lt;: Parent[_]] {
+  def parent: P = ...
+  def bar = parent.foo(this)
+}
+</code></pre>
+
+<p>It now complains on the <code>parent.foo(this)</code> line, because it doesn't know that <code>this</code> is of the correct type. The type of <code>parent</code> needs to be <code>Parent[this.type]</code> for the call to <code>foo</code> to have the right types.</p>
+
+<p>I'm thinking there must be a way of referring to an object's own type? Or to a type that's required to be itself?</p>
+
+<hr>
+
+<p><em><strong>Update</em></strong>: Further to @Daniel's answer, I tried using an abstract type member within the child to state the generic types of the parent type like this:</p>
+
+<pre><code>trait Parent [C &lt;: Child] {
+  def foo(c: C)
+}
+
+trait Child {
+  type P &lt;: Parent[this.type]
+
+  def parent: P = ...
+  def bar = parent.foo(this)
+}
+</code></pre>
+
+<p>This isn't working when I try to implement it:</p>
+
+<pre><code>class ActualParent extends Parent [ActualChild] {
+  def foo(c: ActualChild) = ...
+}
+
+class ActualChild extends Child {
+  type P = ActualParent
+}
+</code></pre>
+
+<p>Gives the following error:</p>
+
+<pre><code>overriding type Parent in trait Child with bounds &gt;: Nothing &lt;: Parent[ActualChild.this.type]
+type Parent has incompatible type
+</code></pre>
+
+<p>What does that mean?</p>
+",1000,,1000,,2010-10-08 13:38:05,2010-10-08 14:18:59,Scala recursive generics: Parent[Child] and Child[Parent],<generics><scala><types>,5,0,1,,
+3888766,2,,3886457,2010-10-08 08:09:39,,3,,"<p>Further to @Daniel's answer, I can use an abstract type member within the child to state the generic types of the parent type like this:</p>
+
+<pre><code>trait Parent [C &lt;: Child] {
+  def foo(c: C)
+}
+
+trait Child {
+  type P &lt;: Parent[this.type]
+
+  def parent: P = ...
+  def bar = parent.foo(this)
+}
+</code></pre>
+
+<p><code>this.type</code> isn't usable directly in generics, but in a parameter it seems to be fine. This approach is a lot less long-winded than the surrounding abstract class, and allows more flexible uses such as children that are also parents.</p>
+",1000,,1000,,2010-10-08 08:36:09,2010-10-08 08:36:09,,,,0,,,
+3891475,2,,3886457,2010-10-08 14:18:59,,1,,"<p>Even though it wasn't successful, I'll record this avenue as an answer.</p>
+
+<p>Using abstract type members, state bounds for the types referring back to <code>this.type</code>:</p>
+
+<pre><code>trait Parent {
+  type C &lt;: Child { type P &lt;: this.type }
+  def foo(c: C)
+}
+
+trait Child {
+  type P &lt;: Parent { type C &lt;: this.type }
+  def parent: P
+  def bar = parent.foo(this)
+}
+
+class ActualParent extends Parent {
+  type C = ActualChild
+  def foo(c: ActualChild) = println(""Hello"")
+}
+
+class ActualChild extends Child {
+  type P = ActualParent
+  def parent = new ActualParent
+}
+</code></pre>
+
+<p>The problem here is that the compiler doesn't connect <code>this</code> with the child type of the parent, so calling <code>parent.foo(this)</code> results in:</p>
+
+<pre><code>type mismatch
+found : Child.this.type (with underlying type Child)
+required: _3.C where val _3: Child.this.P
+</code></pre>
+",1000,,,,,2010-10-08 14:18:59,,,,0,,,
+4013793,1,,,2010-10-25 10:45:00,,1,1000,"<p>Take a look at this screenshot from Firefox:</p>
+
+<p><img src=""http://i.stack.imgur.com/vuD9e.jpg"" alt=""alt text""></p>
+
+<p>The two left and right arrows are translucent text, at 20% and 80% opacity. The text has a text-shadow style applied. The images behind them also have varying opacities applied.</p>
+
+<p>Other browsers are working fine - even IE6, in its own pathetic minimal way - but Firefox is drawing a strange black box behind the text. It's not filling the full text area, just the clip of the actual characters.</p>
+
+<p>I know firefox is capable of doing transparency, so any idea what's triggering this strange behaviour?</p>
+
+<hr>
+
+<p><strong>Update:</strong> <a href=""http://www.jsfiddle.net/sadie/A95L6/1/"" rel=""nofollow"">here's a simple JSFiddle showing the effect</a>. Remove the <code>opacity</code> rule and the problem goes away.</p>
+
+<p>I'm using Firefox 3.6.9 on Linux. The page uses jQuery and jQuery Tools for various opacity fading things, but as the fiddle above shows that isn't causing the issue.</p>
+",1000,,1000,,2010-10-25 11:15:54,2010-10-25 11:15:54,Firefox text opacity background issue,<html><css><firefox><cross-browser>,2,7,,,
+5165586,1,6498150,,2011-03-02 09:31:39,,7,3543,"<p>TinyMCE's <code>valid_elements</code> property lets you define a whitelist of valid HTML elements and their attributes. You can allow only paragraphs and links with this:</p>
+
+<pre><code>tinyMCE.init({
+    valid_elements: 'p,a[href]'
+});
+</code></pre>
+
+<p>However, the <code>style</code> attribute is a bit of a problem. It's needed for certain things like aligning, but if you allow it then it could contain all sorts of undesirable CSS rules. Is there any way to restrict its contents to only allow certain rules, something like this:</p>
+
+<pre><code>a[href|style=text-align,font-size,color]
+</code></pre>
+",1000,,,,,2011-06-27 19:51:40,TinyMCE valid elements: only allow specific CSS rules,<css><validation><tinymce>,2,2,,,
+5841761,2,,5830591,2011-04-30 12:34:04,,1,,"<p>The parameters are stored in a variable called renderArgs. I'm not sure if this is directly accessible inside templates, but if this doesn't work:</p>
+
+<pre><code>renderArgs.get(_entity)
+</code></pre>
+
+<p>then you can probably access it indirectly using the static method:</p>
+
+<pre><code>Scope.RenderArgs.current().get(_entity)
+</code></pre>
+
+<p>Accessing a named field of that entity is then a matter of reflection.</p>
+
+<p>However, I agree with the suggestion that there has to be an easier way. If you find yourself doing reflection like that, it <em>usually</em> (not always) means you've over-engineered something.</p>
+",1000,,,,,2011-04-30 12:34:04,,,,0,,,
+5949047,2,,5935772,2011-05-10 11:07:05,,1,,"<p>Any behaviour that's complicated enough to be described as ""business logic"" (rather than ""presentation logic"") belongs in the model, not the controller. If your model does nothing but map to/from a set of database tables, then it isn't doing its job properly. Things like permissions and access control, in particular, should be enforced by the model.</p>
+",1000,,,,,2011-05-10 11:07:05,,,,1,,,
+7038708,1,7039202,,2011-08-12 10:19:19,,4,598,"<p>I want to use a map of varying types on an unknown A:</p>
+
+<pre><code>val map: Map[Foo[A], Bar[A]] = ...
+...
+val foo = new Foo[Qux]
+val bar: Bar[Qux] = map(foo)
+</code></pre>
+
+<p>This doesn't work, because A is an unknown. I have to define it instead as:</p>
+
+<pre><code>val map: Map[Foo[_], Bar[_]] = ...
+...
+val foo = new Foo[Qux]
+val bar: Bar[Qux] = map(foo).asInstanceOf[Bar[Qux]]
+</code></pre>
+
+<p>This works, but the cast is ugly. I'd rather find a better way. I gather the answer is to use existential types with the <code>forSome</code> keyword, but I'm confused as to how that works. Should it be:</p>
+
+<pre><code>Map[Foo[A], Bar[A]] forSome { type A }
+</code></pre>
+
+<p>or:</p>
+
+<pre><code>Map[Foo[A] forSome { type A }, Bar[A]]
+</code></pre>
+
+<p>or:</p>
+
+<pre><code>Map[Foo[A forSome { type A }], Bar[A]]
+</code></pre>
+",1000,,,,,2015-10-17 21:55:11,Scala: existential types for a Map,<scala><existential-type>,3,0,3,,
+7211342,2,,7200251,2011-08-26 23:02:17,,1,,"<p>I believe (but you should check as I'm not certain) that you can achieve this with modules. If you write a module with its own routes file, those routes can be loaded at any path, including <code>/</code>:</p>
+
+<p><strong>conf/routes</strong></p>
+
+<pre><code>GET   /path/a            MyController.action
+*     /                  module:mymodule
+</code></pre>
+
+<p><strong>mymodule/conf/routes</strong></p>
+
+<pre><code>GET   /path/b            MyModuleController.action
+</code></pre>
+
+<p>But that only makes sense if the routes you want to pull out are actually separate enough to justify having their own module. If not, just include them in the same routes file. As Pere Villega says, it's still a lot more concise than many of the alternatives.</p>
+",1000,,,,,2011-08-26 23:02:17,,,,0,,,
+7303172,2,,7301976,2011-09-05 01:22:10,,0,,"<p>It depends what platform (and language) you're already using for the number-crunching client part. If that 'client' is also using the Play framework (or at least has access to the libraries), then there are some very helpful <a href=""http://www.playframework.org/documentation/1.2.3/libs#WebServiceclient"" rel=""nofollow"">tools for accessing web services</a>; (<a href=""http://playframework.wordpress.com/2010/08/15/web-services-using-play/"" rel=""nofollow"">see here also</a>).</p>
+",1000,,,,,2011-09-05 01:22:10,,,,0,,,
+7317626,2,,7314518,2011-09-06 09:22:06,,0,,"<p>Doing the whole thing at once, and having no way to test until you finish, is going to be a nightmare. As you're going, you'll learn better techniques and have changes of direction, that are going to be really hard to apply to the whole code base.</p>
+
+<p>Any web application that large is going to break down into core features (say 20%), and additional bits (say 80%). Before you start any coding at all, work out what the core features of the system are by discarding anything that's superfluous. Keep going, ruthlessly cutting things, until you have it down to a small subset of the features that hangs together.</p>
+
+<p>Code an application that does those core features, get that working perfectly, and test it to destruction. In the process you've probably learned a lot about how you should have written it, so take the time to refactor the core code to work in exactly the way you want. If you need to experiment with different ways of doing things, now is the time. Make sure it passes every test you can think of, and make sure it keeps passing those tests through the next bit.</p>
+
+<p>Once you have that core not just working but working in the right way, then you can start expanding it to include some of the extra features. The bigger the system gets the more awkward it will be to change things, so if at any point you find you need to change how the system is architected then focus on that in favour of adding new bits.</p>
+",1000,,,,,2011-09-06 09:22:06,,,,0,,,
+7363079,1,,,2011-09-09 14:20:05,,7,4700,"<p>I'd like to use LESS stylesheets in a parent and child theme, in which most of the stylesheet information is specified by the parent and the child simply overrides a few files. This is possible with the Ruby version of LESS like so:</p>
+
+<pre><code>var parser = new(less.Parser)({
+    paths: ['.', './lib'], // Specify search paths for @import directives
+    filename: 'style.less' // Specify a filename, for better error messages
+});
+</code></pre>
+
+<p>but is it possible with the command line compiler <code>lessc</code>? I'd like to say:</p>
+
+<pre><code>$ lessc --path="".;../parent"" style.less
+</code></pre>
+",1000,,1000,,2011-09-09 14:41:11,2011-12-06 07:34:51,LESS @import: Passing paths to lessc,<css><less>,2,1,2,,
+7549415,1,7551209,,2011-09-25 23:51:00,,3,394,"<p>There are questions (<a href=""http://stackoverflow.com/questions/978252/logging-in-scala"">here</a> and <a href=""http://stackoverflow.com/questions/2018528/logging-in-scala"">here</a>) about what library to use for logging in Scala, but I'd like to ask a more specific version of the question.</p>
+
+<p>When you're writing a library - ie some code that will become part of lots of different applictions - you don't have as much freedom to choose what you'd like to use. If you use a different logging solution from the one used in the rest of the application, then the poor application developer has to look in two (or more) places for his debugging information. So ideally you want to use something compatible with the most used solutions.</p>
+
+<p>Of the many logging solutions out there, a lot of them seem to go via <strong>slf4j</strong>. Does that mean any solution using slf4j would be best? Or <strong>slf4s</strong>?</p>
+",1000,,,,,2011-09-26 06:10:56,Logging in Scala: what to use when writing a library,<scala><logging>,2,0,,,
+7768669,1,,,2011-10-14 13:54:13,,4,264,"<p>I'd like to have a method that can be called with or without a type parameter, and return a different value for each. Here's some obviously simplified code:</p>
+
+<pre><code>object Foo {
+  def apply() = ""Hello""
+  def apply[T]() = 1
+}
+</code></pre>
+
+<p>Calling it with a type parameter is fine:</p>
+
+<pre><code>scala&gt; Foo[String]()
+res1: Int = 1
+</code></pre>
+
+<p>But calling it without a type parameter doesn't work:</p>
+
+<pre><code>scala&gt; Foo()
+&lt;console&gt;:9: error: ambiguous reference to overloaded definition,
+both method apply in object Foo of type [T]()Int
+and  method apply in object Foo of type ()java.lang.String
+match argument types ()
+       Foo()
+</code></pre>
+
+<p>It's not a runtime problem, so adding an implicit dummy parameter doesn't help. Nor does having a restricted parameter (<code>Foo[Unit]()</code>). Is there any way of doing this that isn't ambiguous to the compiler?</p>
+",1000,,,,,2011-10-14 14:17:44,Overloading a method based on a type parameter,<generics><scala><types>,1,0,,,
+8097637,1,,,2011-11-11 17:22:21,,2,231,"<p>We have a problem with a Zend framework-based PHP application. When accessed by IE6 over SSL, it occasionally fails silently, instantly producing ""This page cannot be displayed"" in IE and no log messages at all on the server - not even an Apache log reporting a bad request.</p>
+
+<p>Here's what we've established so far:</p>
+
+<ol>
+<li>Only IE6 produces this problem. Real browsers are fine, and even IE7.</li>
+<li>Only using SSL produces this problem.</li>
+<li>We're using a self-signed certificate.</li>
+<li>A static HTML page does not produce the problem.</li>
+<li>A simple ""Hello world"" PHP page does not produce the problem, but the full Zend application does.</li>
+<li>Removing all external javascript and CSS from the delivered page has no effect</li>
+<li>We've made sure the certificate is used by the <code>_default_:443</code> virtual host in Apache</li>
+<li>The server is Ubuntu 3.0.0-12 running Apache 2.2.20, PHP 5.3.6</li>
+<li>IE6 is running on Windows XP in a virtual machine</li>
+<li>The virtual machine <em>does</em> have access to the internet</li>
+<li>The virtual machine is not infested with malware</li>
+</ol>
+
+<p>To us this suggests that the SSL handshake is failing, but we're confused by the fact that only a full Zend framework application triggers this - lesser PHP pages work fine.</p>
+",1000,,1000,,2011-11-14 09:15:45,2012-05-23 20:24:51,"Problems with IE6, SSL and Zend framework",<php><zend-framework><ssl><internet-explorer-6>,1,6,,,
+8254706,1,8293757,,2011-11-24 09:25:08,,15,6096,"<p>You can run a scala script as a linux shell script:</p>
+
+<pre><code>#!/bin/sh
+exec scala ""$0"" ""$@""
+!#
+
+println(""Hello"")
+</code></pre>
+
+<p>In one such script I need to load classes from a group of jars (which happen to be in the same directory as the script). If this were the REPL I could use <code>:jar</code>, but that's not available in script mode.</p>
+
+<p>I'm trying to set the <code>-classpath</code> parameter:</p>
+
+<pre><code>#!/bin/sh
+exec scala -classpath '.:./*.jar' ""$0"" ""$@""
+!#
+
+import javax.media.jai.{JAI, RenderedOp}
+</code></pre>
+
+<p>but the compiler just can't find the classes:</p>
+
+<pre><code>error: object media is not a member of package javax
+import javax.media.jai.{JAI, RenderedOp}
+             ^
+</code></pre>
+
+<p>How do I include these jars?</p>
+",1000,,1000,,2011-11-24 12:34:11,2016-01-29 07:24:46,Scala as a shell script: jars on the classpath,<scala><jar>,6,1,6,,
+8293757,2,,8254706,2011-11-28 09:23:11,,9,,"<p>For some reason, the glob (<code>*.jar</code>) wasn't working. I was able to get the script running by putting in all the libraries by hand:</p>
+
+<pre><code>#!/bin/sh
+exec scala -cp lib/jai_codec.jar:lib/jai_core.jar:lib/mlibwrapper_jai.jar $0 $@
+!#
+
+import javax.media.jai.{JAI, RenderedOp}
+</code></pre>
+
+<p>I don't know <em>why</em> the glob isn't working though.</p>
+
+<p>Note that in this case I don't have the <code>.</code> in the classpath because the script itself is provided as an argument. In many cases though you will need to include it:</p>
+
+<pre><code>exec scala -cp .:lib/jai_codec.jar:lib/jai_core.jar:lib/mlibwrapper_jai.jar $0 $@
+</code></pre>
+
+<hr>
+
+<p>Based on <a href=""http://mackaz.de/26"">this helpful post</a>, I have a script header that pulls in every jar in a <code>lib</code> folder, even if the script (or the folder it's in) are symlinks.</p>
+
+<pre><code>#!/bin/sh
+L=`readlink -f $0`
+L=`dirname $L`/lib
+cp=`echo $L/*.jar|sed 's/ /:/g'`
+/usr/bin/env scala -classpath $cp $0 $@
+exit
+!#
+</code></pre>
+
+<ul>
+<li>The first line turns the given script location <code>$0</code> into its actual location on disk, expanding symlinks.</li>
+<li>The second line removes the script name and adds <code>/lib</code></li>
+<li>The third line creates a <code>cp</code> variable with all the jars separated by <code>:</code></li>
+<li>The fourth line runs scala, wherever it may be.</li>
+<li>The fifth line exits. This probably isn't necessary, but it makes me feel better.</li>
+</ul>
+",1000,,1000,,2011-12-01 09:21:45,2011-12-01 09:21:45,,,,3,,,
+8430446,1,8435522,,2011-12-08 11:38:09,,16,3459,"<p>Please pardon the length of this question.</p>
+
+<p>I often need to create some contextual information at one layer of my code, and consume that information elsewhere. I generally find myself using implicit parameters:</p>
+
+<pre><code>def foo(params)(implicit cx: MyContextType) = ...
+
+implicit val context = makeContext()
+foo(params)
+</code></pre>
+
+<p>This works, but requires the implicit parameter to be passed around a lot, polluting the method signatures of layer after layout of intervening functions, even if they don't care about it themselves.</p>
+
+<pre><code>def foo(params)(implicit cx: MyContextType) = ... bar() ...
+def bar(params)(implicit cx: MyContextType) = ... qux() ...
+def qux(params)(implicit cx: MyContextType) = ... ged() ...
+def ged(params)(implicit cx: MyContextType) = ... mog() ...
+def mog(params)(implicit cx: MyContextType) = cx.doStuff(params)
+
+implicit val context = makeContext()
+foo(params)
+</code></pre>
+
+<p>I find this approach ugly, but it does have one advantage though: it's type safe. I know with certainty that <code>mog</code> will receive a context object of the right type, or it wouldn't compile.</p>
+
+<p>It would alleviate the mess if I could use some form of ""dependency injection"" to locate the relevant context. The quotes are there to indicate that this is different from the usual dependency injection patterns found in Scala.</p>
+
+<p>The start point <code>foo</code> and the end point <code>mog</code> may exist at very different levels of the system. For example, <code>foo</code> might be a user login controller, and <code>mog</code> might be doing SQL access. There may be many users logged in at once, but there's only one instance of the SQL layer. Each time <code>mog</code> is called by a different user, a different context is needed. So the context can't be baked into the receiving object, nor do you want to merge the two layers in any way (like the Cake Pattern). I'd also rather not rely on a DI/IoC library like Guice or Spring. I've found them very heavy and not very well suited to Scala.</p>
+
+<p>So what I think I need is something that lets <code>mog</code> retrieve the correct context object for it at runtime, a bit like a <code>ThreadLocal</code> with a stack in it:</p>
+
+<pre><code>def foo(params) = ...bar()...
+def bar(params) = ...qux()...
+def qux(params) = ...ged()...
+def ged(params) = ...mog()...
+def mog(params) = { val cx = retrieveContext(); cx.doStuff(params) }
+
+val context = makeContext()
+usingContext(context) { foo(params) }
+</code></pre>
+
+<p>But that would fall as soon as asynchronous actor was involved anywhere in the chain. It doesn't matter which actor library you use, if the code runs on a different thread then it loses the <code>ThreadLocal</code>.</p>
+
+<p>So... is there a trick I'm missing? A way of passing information contextually in Scala that doesn't pollute the intervening method signatures, doesn't bake the context into the receiver statically, and is still type-safe?</p>
+",1000,,1000,,2011-12-08 12:55:08,2013-04-30 13:30:22,Scala dependency injection: alternatives to implicit parameters,<scala><dependency-injection><implicits>,5,0,8,,
+8988500,2,,8986786,2012-01-24 14:27:59,,0,,"<p>Both are options. Play! 2.0 will have built-in support for compiling LESS on the server side (and also CoffeeScript).</p>
+",1000,,,,,2012-01-24 14:27:59,,,,4,,,
+9230558,2,,9219255,2012-02-10 15:51:10,,0,,"<blockquote>
+  <p>What's the <strong>architecture</strong>?</p>
+</blockquote>
+
+<p>Play! strongly encourages your server to use an MVC architecture, creating packages in a standard pattern:</p>
+
+<pre><code>app/
+  controllers/
+    Application.scala
+  views/
+    Application/
+      index.scala.html
+  models/
+public/
+  images/
+  stylesheets/
+  javascripts/
+</code></pre>
+
+<p>This makes it easier to follow the architecture than to break it.</p>
+
+<p>I can't speak for either Lift or BlueEyes, but afaik neither of them encourage an architecture as strongly.</p>
+",1000,,,,,2012-02-10 15:51:10,,,,4,,,
+9314942,2,,9307883,2012-02-16 16:21:25,,2,,"<p>You've got a head start by using a stateless web framework like Play! that won't get in the way when you need to scale. As ExxKA says, keep your model clean and sensible. This will help you keep the advantage of complexity.</p>
+
+<p>Don't consider it a failure when you need to refactor your code - or even rewrite important parts of it. This is a natural part of a growing project, like a snake shedding its skin.</p>
+
+<p>There are inevitably things that you'll learn in the process of writing the project, so don't try to anticipate them all right now.</p>
+",1000,,,,,2012-02-16 16:21:25,,,,0,,,
+11505700,1,11525162,,2012-07-16 13:45:00,,1,463,"<p>I'm using Raphael JS to display a scrollable, zoomable map of the world, which is working fine. But any 2D representation of a globe is going to be distorted. If possible I'd like to transform the map so that the top and bottom are pinched in, to make the map at least a little bit more representative of a globe. Is it possible to achieve such effects with Raphael's matrix, or by hacking deeper into it to insert a manual transformation?</p>
+",1000,,205233,,2012-07-16 13:56:39,2012-07-17 14:49:14,Spherical map transformation,<svg><raphael><transform>,1,0,,,
+12120316,2,,10810504,2012-08-25 08:11:57,,5,,"<p>To use <code>saveAs</code> without a dialog popping up, you need to use the global property <code>userInteractionLevel</code>:</p>
+
+<pre><code>var originalInteractionLevel = userInteractionLevel;
+userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+
+...
+
+userInteractionLevel = originalInteractionLevel;
+</code></pre>
+",1000,,,,,2012-08-25 08:11:57,,,,0,,,
+13418804,2,,6099870,2012-11-16 14:42:02,,0,,"<p>None of the given answers here were working for me, possibly because my case was more complicated (I needed more than one join), so I used Dennis' solution but split it into a temporary table:</p>
+
+<pre><code>CREATE TEMPORARY TABLE version_lookup
+SELECT pduid, group_concat(version ORDER BY version SEPARATOR ',') AS 'versions'
+     from items GROUP BY pduid;
+
+UPDATE 
+items i, version_lookup
+SET i.versions = version_lookup.versions
+WHERE version_lookup.pduid = i.pduid;
+</code></pre>
+",1000,,,,,2012-11-16 14:42:02,,,,0,,,
+20872724,2,,10199219,2014-01-01 20:08:03,,10,,"<p>Sonia's answer is technically correct but left me even more confused. Here's how I eventually got it working:</p>
+
+<pre><code>t, err := template.New(""_base.html"").Funcs(funcs).ParseFiles(""../view/_base.html"", ""../view/home.html"")
+if err != nil {
+    fmt.Fprint(w, ""Error:"", err)
+    fmt.Println(""Error:"", err)
+    return
+}
+err = t.Execute(w, data)
+if err != nil {
+    fmt.Fprint(w, ""Error:"", err)
+    fmt.Println(""Error:"", err)
+}
+</code></pre>
+
+<p>The name of the template is the bare filename of the template, not the complete path. <code>Execute</code> will execute the default template provided it's named to match, so there's no need to use <code>ExecuteTemplate</code>.</p>
+
+<p>In this case, <code>_base.html</code> file is the outermost container, eg:</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;body&gt;
+&lt;h1&gt;{{ template ""title"" }}&lt;/h1&gt;
+{{ template ""content"" }}
+&lt;/body&gt;&lt;/html&gt;
+</code></pre>
+
+<p>while <code>home.html</code> defines the specific parts:</p>
+
+<pre><code>{{ define ""title"" }}Home{{ end }}
+
+{{ define ""content"" }}
+Stuff
+{{ end }}
+</code></pre>
+",1000,,,,,2014-01-01 20:08:03,,,,0,,,
+21371673,1,21375405,,2014-01-27 01:37:05,,4,82,"<p>I need to read Unicode files that may or may not contain a byte-order mark. I could of course check the first few bytes of the file myself, and discard a BOM if I find one. But before I do, is there any standard way of doing this, either in the core libraries or a third party?</p>
+",1000,,,,,2014-02-03 00:41:32,Reading files with a BOM in Go,<unicode><go><byte-order-mark>,2,0,,,
+23794704,2,,19835233,2014-05-21 22:10:29,,3,,"<p>Those answering ""no"" have very good reasons, but it isn't impossible.</p>
+
+<p>I'm successfully using GitHub to manage <a href=""http://github.com/marcusatbang/charactersheets"" rel=""nofollow"">an open source project</a> consisting of hundreds of Illustrator files and PDFs (and also some code and text, but that's a tiny blip in comparison). The repo comes out at about 8GB. The reason I'm doing something so insane is because the Illustrator files are the core of the product, not merely decorative artwork to go along with it - they are the <em>source</em> of the project - and because I wanted to make sure it would stay open source.</p>
+
+<p>There have been some sticking points, and things to be aware of. I would suggest:</p>
+
+<ul>
+<li><p>Don't try this unless you're pretty familiar with git. Resolving conflicts and branching issues can get really thorny, and you may have to do some pretty arcane stuff to keep the repo happy. Nobody expects you to know every corner of git (I'm not sure a sane person could), but know enough that you can google the rest.</p></li>
+<li><p>Make sure you're comfortable using git on the command line. GUI tools may shield you from complexity, but they also prevent you from fully understanding what's going on under the covers. Once you have that understanding, you're free to use a GUI for 95% of the time.</p></li>
+<li><p>Avoid branching if possible. Binary files don't merge the way code does, so bringing branches together can get messy and laborious.</p></li>
+<li><p>Learn about specific features of git that can help you to manage the size and complexity of the repo: partial checkouts, tags, <code>git gc</code>, etc</p></li>
+<li><p>Take time to plan in advance. It may be that you would benefit from separating the project into two or more git repos, or from combining it with another service.</p></li>
+<li><p>If you're using a hosting service, make sure you know what limits they impose on the repo. For example, GitHub will complain about files over 100MB. <a href=""https://help.github.com/articles/what-is-my-disk-quota"" rel=""nofollow"">Here are their recommended guidelines for binaries</a>.</p></li>
+</ul>
+",1000,,,,,2014-05-21 22:10:29,,,,0,,,
+33688028,1,,,2015-11-13 07:56:21,,0,16,"<p>I'm running a very long script in Illustrator (several days), but before it can complete Windows decides that Illustrator is non-responsive and shuts it down. This is presumably because Illustrator is giving all its attention to the script, not to its UI or anything else.</p>
+
+<p>The script is doing its job properly until it gets interrupted, and I'm fine with the time it takes. I simply wish for it to be allowed to finish.</p>
+
+<p>My current approach is to insert regular delays into the script using:</p>
+
+<blockquote>
+  <p>$.sleep(100);</p>
+</blockquote>
+
+<p>This increases the time before it timeouts substantially, but not enough to reach the end uninterrupted. Is there any way of making it keep going?</p>
+",1000,,,,,2015-11-13 07:56:21,Prevent ExtendScript timeouts,<extendscript>,0,0,,,
+34314328,1,,,2015-12-16 14:16:56,,4,568,"<p>I'm unsure how to override variables between roles in Ansible.</p>
+
+<p>To simplify the setup a little, I have two roles applied to the same host. The first role defines a variable in its <code>default/main.yml</code>:</p>
+
+<pre><code>do_some_task: yes
+</code></pre>
+
+<p>And looks for that variable in its tasks:</p>
+
+<pre><code>- name: Some Task
+  when: do_some_task
+</code></pre>
+
+<p>The second role overrides that in its <code>vars/main.yml</code>, which is supposed to take precedence over the defaults:</p>
+
+<pre><code>do_some_task: no
+</code></pre>
+
+<p>However, the task is still being run, indicating that the variable wasn't overridden. It seems that the override is scoped to the tasks of the second role. I tested that by adding a debug task to both roles:</p>
+
+<pre><code>- name: Test some task
+  debug: ""msg='do_some_task = {{ do_some_task }}'""
+</code></pre>
+
+<p>This confirms that the first role sees a different value of the variable than the second.</p>
+
+<pre><code>TASK: [role1 | Test some task]
+ok: [myhost] =&gt; {
+    ""msg"": ""do_some_task = True"" 
+}
+
+...
+
+TASK: [role2 | Test some task]
+ok: [myhost] =&gt; {
+    ""msg"": ""do_some_task = False"" 
+}
+</code></pre>
+
+<p>The common answer to this appears to be to set the variables in the inventory or the host vars. However this isn't particularly DRY: if you have many hosts in different inventories, you'd have to set the same variables in lots of places.</p>
+
+<p>So is there some way of overriding a variable from another role?</p>
+",1000,,,,,2015-12-16 15:17:08,Ansible variable override default in another role,<ansible>,1,4,,,
+35921514,2,,35920534,2016-03-10 16:04:21,,1,,"<p>Performance is the big reason. Creating a new slice and copying all the elements over to it is expensive, so the slice code doesn't copy without good reason. However, if you exceed the slice's capacity, it grows by a suitable amount by copying the underlying slice. That means that the slice that's returned from <code>append</code> may not be the same slice you passed in.</p>
+
+<p>The preferred way to use is:</p>
+
+<pre><code>args = append(args, newarg)
+</code></pre>
+
+<p>If you take a subslice, the capacity stays the same but your view into the slice changes. That means the missing elements are still there but outside the bounds of the new slice.</p>
+
+<p>This explains the odd output of your code. You're printing the result of <code>append</code> each time but not storing that result, which means <code>args</code> isn't the same as what you printed.</p>
+
+<p>The initial <code>args</code> slice is 3 elements big. For each index <code>i</code> - which is to say for <code>0</code>, <code>1</code> and <code>2</code> - you take a subslice <code>args[:i]</code> and append all the elements of the remainder of the array <code>args[i+1:]</code> to it. That means that for:</p>
+
+<pre><code>i    args[:i]     args[i+1]...   Result         args
+0    {}           {""3"", ""8""}     {""3"", ""8""}     {""3"", ""8"", ""8""}
+1    {""3""}        {""8""}          {""3"", ""8""}     {""3"", ""8"", ""8""}
+2    {""3"", ""8""}   {}             {""3"", ""8""}     {""3"", ""8"", ""8""}
+</code></pre>
+
+<p><strong>tl;dr</strong>  you should always save the result of <code>append</code>, and if you want to make a copy so you can change it then make a copy yourself.</p>
+",1000,,,,,2016-03-10 16:04:21,,,,0,,,
+37070862,2,,17546953,2016-05-06 11:08:25,,0,,"<p>I had an issue like this, and found the solution was to do with Underscore.js. My initial logging made no sense:</p>
+
+<pre><code>console.log(JSON.stringify(obj, null, 2));
+
+&gt; {
+&gt;   ""code"": ""foo""
+&gt; }
+
+console.log(obj.code);
+
+&gt; undefined
+</code></pre>
+
+<p>I found the solution by also looking at the keys of the object:</p>
+
+<pre><code>console.log(JSON.stringify(Object.keys(obj)));
+
+&gt; [""_wrapped"",""_chain""]
+</code></pre>
+
+<p>This lead me to realise that <code>obj</code> was actually an Underscore.js wrapper around an object, and the initial debugging was lying to me.</p>
+",1000,,,,,2016-05-06 11:08:25,,,,0,,,
+16215,2,,4689,2008-08-19 14:03:17,,2,,"<p>I'm going to make some enemies with this, but I actually use -- <em>gasp</em> -- a non-monospace font! I occasionally switch back to a monospace to disambiguate something, but mostly find that a good clean sans-serif font is easiest to read and doesn't waste screen estate.</p>
+
+<p>An IDE with good syntax colouring helps.</p>
+",1000,sadie,,,,2008-08-19 14:03:17,,,,0,,,2008-09-19 22:36:21
+473388,2,,466504,2009-01-23 15:49:42,,0,,"<p>I once wrote a class called UberDomain - for good reasons, I promise - but it was refactored into something else before it got to production.</p>
+",1000,Marcus Downing,,,,2009-01-23 15:49:42,,,,0,,,2009-01-23 15:49:42
+898799,2,,743256,2009-05-22 16:39:28,,5,,"<p>Scala is not a beginner's language. It's complicated, subtle and requires a significant investment of learning. It's awesome, but it's not easy.</p>
+
+<p>Other answers have made this sound negative:</p>
+
+<blockquote>
+  <p><strong>mipadi:</strong>
+  a lot of Scala programmers (not all,
+  but a lot) use Scala not because they
+  love object-oriented functional
+  languages, but because they don't want
+  to use Java</p>
+</blockquote>
+
+<p>I prefer to see this in a positive light. Scala is a language that has learned from the mistakes of history and strives not to repeat them. It attracts the sort of developers who have enough experience, in Java and other traditional languages, to appreciate this.</p>
+
+<p>A sign of immaturity is the belief that one methodology rules over all others. I know I was guilty, a decade ago, of believing that object orientation was the one true way. Now we have those who claim that functional programming and nothing else is the right way. Scala is more mature than that: it understands that one size doesn't fit all.</p>
+
+<p>Scala is still fairly new (in the scale of these things), and parts of it are settling down as I type this, but it's only a matter of time before somebody uses it to create a killer app, something millions come to rely on. I of course hope that'll be me :)</p>
+",1000,,,,,2009-05-22 16:39:28,,,,1,,,2009-05-22 16:39:28
+246540,1,1743757,,2008-10-29 12:03:33,,9,6977,"<p>This error has been driving me nuts. We have a server running Apache and Tomcat, serving multiple different sites. Normally the server runs fine, but sometimes an error happens where people  are served the wrong page - <strong>the page that <em>somebody else</em> requested!</strong></p>
+
+<p>Clues:</p>
+
+<ul>
+<li>The pages being delivered are those that another user requested recently, and are otherwise delivered correctly. It's been known for two simultaneous requests to be swapped. As far as I can tell, none of the pages being incorrectly delivered are older than a few minutes.</li>
+<li>It only affects the files that are being served by Tomcat. Static files like images are unaffected.</li>
+<li>It doesn't happen all the time. When it does happen, it happens for everybody.</li>
+<li>It seems to happen at times of peak demand. However, the demand is not yet very high - it's certainly well within the bounds of what Apache can cope with.</li>
+<li>Restarting Tomcat fixed it, but only for a few minutes. Restarting Apache fixed it, but only for a few minutes.</li>
+<li>The server is running Apache 2 and Tomcat 6, using a Java 6 VM on Gentoo. The connection is with AJP13, and <code>JkMount</code> directives within <code>&lt;VirtualHost&gt;</code> blocks are correct.</li>
+<li>There's nothing of use in any of the log files.</li>
+</ul>
+
+<p><hr /></p>
+
+<p><strong>Further information:</strong></p>
+
+<p>Apache does not have any form of caching turned on. All the caching-related entries in httpd.conf and related imports say, for example:</p>
+
+<pre><code>&lt;IfDefine CACHE&gt;
+  LoadModule cache_module modules/mod_cache.so
+&lt;/IfDefine&gt;
+</code></pre>
+
+<p>While the options for Apache don't include that flag:</p>
+
+<pre><code>APACHE2_OPTS=""-D DEFAULT_VHOST -D INFO -D LANGUAGE -D SSL -D SSL_DEFAULT_VHOST -D PHP5 -D JK""
+</code></pre>
+
+<p>Tomcat likewise has no caching options switched on, that I can find.</p>
+
+<p><a href=""http://stackoverflow.com/questions/246540/apachetomcat-error-wrong-pages-being-delivered#246566"">toolkit's suggestion</a> was good, but not appropriate in this case. What leads me to believe that the error can't be within my own code is that it isn't simply a few values that are being transferred - it's the entire request, including the URL, parameters, session cookies, the whole thing. People are getting pages back saying ""You are logged in as John"", when they clearly aren't.</p>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong></p>
+
+<p>Based on suggestions from several people, I'm going to add the following HTTP headers to Tomcat-served pages to disable all forms of caching:</p>
+
+<pre><code>Cache-Control: no-store
+Vary: *
+</code></pre>
+
+<p>Hopefully these headers will be respected not just by Apache, but also by any other caches or proxies that may be in the way. Unfortunately I have no way of deliberately reproducing this error, so I'm just going to have to wait and see if it turns up again.</p>
+
+<p>I notice that the following headers are being included - could they be related in any way?</p>
+
+<pre><code>Connection: Keep-Alive
+Keep-Alive: timeout=5, max=66
+</code></pre>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong></p>
+
+<p>Apparently this happened again while I was asleep, but has stopped happening now I'm awake to see it. Again, there's nothing useful in the logs that I can see, so I have no clues to what was actually happening or how to prevent it.</p>
+
+<p>Is there any extra information I can put in Apache or Tomcat's logs to make this easier to diagnose?</p>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong></p>
+
+<p>Since this has happened again a couple of times, we've changed how Apache connects to Tomcat to see if it affects things. We were using <code>mod_jk</code> with a directive like this:</p>
+
+<pre><code>JkMount /portal ajp13
+</code></pre>
+
+<p>We've switched now to using <code>mod_proxy_ajp</code>, like so:</p>
+
+<pre><code>ProxyPass /portal ajp://localhost:8009/portal
+</code></pre>
+
+<p>We'll see if it makes any difference. This error was always annoyingly unpredictable, so we can never definitively say if it's worked or not.</p>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong></p>
+
+<p>We just got the error briefly on a site that was left using <code>mod_jk</code>, while a sister site on the same server using <code>mod_proxy_ajp</code> didn't show the error. This doesn't prove anything, but it does provide evidence that swithing to <code>mod_proxy_ajp</code> may have helped.</p>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong></p>
+
+<p>We just got the error again last night on a site using <code>mod_proxy_ajp</code>, so clearly that hasn't solved it - <code>mod_jk</code> wasn't the source of the problem. I'm going to try the anonymous suggestion of turning off persistent connections:</p>
+
+<pre><code>KeepAlive Off
+</code></pre>
+
+<p>If that fails as well, I'm going to be desperate enough to start investigating GlassFish.</p>
+
+<p><hr /></p>
+
+<p><strong>Update:</strong></p>
+
+<p>Dammit! The problem just came back. I hadn't seen it in a while, so I was starting to think we'd finally sorted it. I hate heisenbugs.</p>
+",1000,sadie,3043,Marcus Downing,2009-08-28 01:51:31,2015-11-23 13:27:19,Apache/Tomcat error - wrong pages being delivered,<apache><tomcat><ajp>,11,9,5,,2009-08-28 01:51:31
+1743757,2,,246540,2009-11-16 17:49:16,,0,,"<p>We switched Apache from proxying with AJP to proxying with HTTP. So far it appears to have solved the issue, or at least vastly reduced it - the problem hasn't been reported in months, and the app's use has increased since then.</p>
+
+<p>The change is in Apache's httpd.conf. Having started with <code>mod_jk</code>:</p>
+
+<pre><code>JkMount /portal ajp13
+</code></pre>
+
+<p>We switched to <code>mod_proxy_ajp</code>:</p>
+
+<pre><code>ProxyPass /portal ajp://localhost:8009/portal
+</code></pre>
+
+<p>Then finally to straight <code>mod_proxy</code>:</p>
+
+<pre><code>ProxyPass /portal http://localhost:8080/portal
+</code></pre>
+
+<p>You'll need to make sure Tomcat is set up to serve HTTP on port 8080. And remember that if you're serving <code>/</code>, you need to include <code>/</code> on both sides of the proxy or it starts crying:</p>
+
+<pre><code>ProxyPass / http://localhost:8080/
+</code></pre>
+",1000,,,,,2009-11-16 17:49:16,,,,0,,,2009-11-16 17:49:16
+19110,2,,18803,2008-08-21 00:09:42,,29,,"<p>Using UML is like looking at your feet as you walk. It's making conscious and explicit something that you can usually do unconsciously. Beginners need to think carefully about what they're doing, but a professional programmer already knows what they're doing. Most of the time, writing the code itself is quicker and more effective than writing about the code, because their programming intuition is tuned to the task.</p>
+
+<p>The exception is why you find yourself in the woods at night without a torch and it's started to rain - then you need to look at your feet to avoid falling down. There are times when the task you've taken on is more complicated than your intuition can handle, and you need to slow down and state the structure of your program explicitly. Then UML is one of many tools you can use. Others include pseudocode, high-level architecture diagrams and strange metaphors.</p>
+",1000,sadie,,,,2008-08-21 00:09:42,,,,1,,,2011-06-03 08:39:55
+4653018,1,4822981,,2011-01-11 00:23:24,,5,5052,"<p>I'm using iText in Java to select a few pages out of a big PDF document and save as a new, smaller PDF. At the same time I'd like to change their colours.</p>
+
+<p>For example, suppose my pages all use shades of grey, and I'd like to make it green. All the colours used are shades of gray. I'd like to replace each of those colours with a corresponding colour in green.</p>
+
+<hr>
+
+<p><strong>Mark Storer asks:</strong></p>
+
+<blockquote>
+  <p>What exactly are you trying to accomplish?</p>
+</blockquote>
+
+<p>Turn this... into this:</p>
+
+<p><img src=""http://i.stack.imgur.com/ftRsu.png"" alt=""gray page""><img src=""http://i.stack.imgur.com/IdfkU.png"" alt=""green page""></p>
+
+<p>I have <a href=""http://charactersheets.minotaur.cc/"" rel=""nofollow"">some documents</a>, on which I'm already using iText to select a smaller set of pages from the document based on user input - cutting more than 100 pages down to about 5. At the same time I wish to produce green, blue, yellow, pink etc versions of them. Not every page is in grayscale, but all the ones that matter are, so I can force their colour space if need be.</p>
+
+<hr>
+
+<p><strong>Update:</strong></p>
+
+<p>Following Mark Storer's suggestion of blending modes, here's what I have:</p>
+
+<pre><code>    val reader = new PdfReader(file.toURL)
+    val document = new Document
+    val writer = PdfWriter.getInstance(document, outputStream)
+    document.open()
+
+    /* draw a white background behind the page, so the
+       blend always has something to transform, otherwise
+       it just fills. */
+    val canvas = writer.getDirectContent
+    canvas.setColorFill(new CMYKColor(0.0f, 0.0f, 0.0f, 0.0f))
+    canvas.rectangle(10f, 0f, 100f, 100f)
+    canvas.fill
+
+    /* Put the imported page on top of that */
+    val page = writer.getImportedPage(reader, 1)
+    canvas.addTemplate(page, 0, 0)
+
+    /* Fill a box with colour and a blending mode */
+    canvas.setColorFill(new CMYKColor(0.6f,0.1f,0.0f,0.5f))
+    val gstate = new PdfGState
+    gstate.setBlendMode(PdfGState.BM_SCREEN)
+    canvas.setGState(gstate)
+    canvas.rectangle(0f, 0f, 100f, 100f)
+    canvas.fill
+
+    document.close()
+</code></pre>
+
+<p>(It's in Scala, but the iText library is just the same as in Java)</p>
+
+<p>The problem is, all the blending modes iText has available are ""separable"" modes: they operate on each colour channel independently. That means I can separately adjust the cyan, magenta, yellow or black values, but I can't turn gray into green.</p>
+
+<p>To do that, I'd need to use the Color blending mode, which is ""non-separable"", ie the colour channels affect each other. As far as I can tell, iText doesn't offer that - none of the non-separale blending modes are listed among the constants in <code>PdfGState</code>. I'm using iText 5.0.5, which is the latest version as of writing this.</p>
+
+<p>Is there a way of accessing these blending modes in iText, or even of hacking them in? Is there another way of achieving the result?</p>
+
+<ul>
+<li><a href=""http://www.adobe.com/content/dam/Adobe/en/devnet/pdf/pdfs/pdf_reference_archives/blend_modes.pdf"" rel=""nofollow"">This adobe document described blending modes</a>.</li>
+</ul>
+
+<hr>
+
+<p><strong>Update:</strong></p>
+
+<p>Even setting the blend mode to Color didn't work. I did this in code to force it:</p>
+
+<pre><code>    val gstate = new PdfGState
+    gstate.put(PdfName.BM, new PdfName(""Color""))
+    canvas.setGState(gstate)
+</code></pre>
+
+<p>and I checked the resulting PDF in a text editor to make sure it said the right thing. Sadly the result on screen just didn't work. I've no idea why, according to the PDF specification that should be the right blend mode.</p>
+
+<hr>
+
+<p><strong>Mark Storer asks:</strong></p>
+
+<blockquote>
+  <p>""Color"" didn't work? Funky. Can we see the PDF?</p>
+</blockquote>
+
+<p><a href=""http://www.basingstokeanimesociety.com/sadie/blending-test.pdf"" rel=""nofollow"">Here's a PDF</a>. </p>
+
+<p>Putting it on the web, I can now see that the ""Color"" mode works correctly in Chrome, but doesn't work in Acrobat 9 Pro (CS4). So the technique is correct, but Adobe fails at rendering!</p>
+
+<p>I wonder if there isn't some way of ""flattening"" the effect of the blending mode, so the PDF contains the desired colour object directly rather than a blending intended to result in the right colour.</p>
+
+<blockquote>
+  <p>Idea: Turn this upside down. Use the existing page as an alpha channel on a page filled
+  entirely with the desired color rather than the other way around.</p>
+</blockquote>
+
+<p>How? I'm not sure the GState applies to adding a template?</p>
+
+<p>Also, the imported page would need the white background adding first, or it will simply flood with colour wherever there isn't an object rather then blending.</p>
+
+<p>I tried doing this:</p>
+
+<pre><code>    val canvas = writer.getDirectContent
+    canvas.setColorFill(new CMYKColor(0.6f,0.1f,0.0f,0.0f))
+    canvas.rectangle(10f, 0f, 500f, 500f)
+    canvas.fill
+
+    val template = canvas.createTemplate(500f, 500f)
+    template.setColorFill(new CMYKColor(0f, 0f, 0f, 0f))
+    template.rectangle(0f, 0f, 500f, 500f)
+    template.fill
+
+    val page = writer.getImportedPage(reader, 1)
+    template.addTemplate(page, 0, 0)
+
+    val gstate = new PdfGState
+    gstate.put(PdfName.BM, new PdfName(""Color""))
+    canvas.setGState(gstate)
+    canvas.addTemplate(template, 0, 0)
+</code></pre>
+
+<p>And <a href=""http://www.basingstokeanimesociety.com/sadie/blending-test2.pdf"" rel=""nofollow"">here's the PDF it produced</a>. Not quite right, either in Chrome or Acrobat :)</p>
+
+<p><strong>Edit</strong>: Silly me. I changed the mode to ""Luminosity"", <a href=""http://www.basingstokeanimesociety.com/sadie/blending-test2.pdf"" rel=""nofollow"">producing this file</a>. As before, this looks correct in Chrome but not in Acrobat.</p>
+
+<hr>
+
+<p>I just checked, and even Adobe Reader X doesn't render it properly. Which probably means what I'm asking for is impossible. :(</p>
+
+<hr>
+
+<p><strong>Solution</strong></p>
+
+<p>Leonard Rosenthal from Adobe got back to me, and clarified the problem: the ""Color"" blend mode only works when the transformation space is RGB, not CMYK. My PDF wasn't specifying the space, so Adobe products default to CMYK, while others default to RGB.</p>
+
+<p>The solution in iText was to add this line near the top:</p>
+
+<pre><code>    writer.setRgbTransparencyBlending(true)
+</code></pre>
+
+<p>Of course, for the sake of colour accuracy you don't want any more colour space conversions than absolutely necessary, so only use this line if you really do need to use RGB blend modes.</p>
+
+<p>The colour pages produced look a little strange from a Photoshop user's perspective: it looks like light greys have been made more saturate than dark greys. I'm investigating ways of combining filters to adjust that output.</p>
+
+<p><strong><a href=""http://charactersheets.minotaur.cc/"" rel=""nofollow"">Here's the result!</a></strong></p>
+
+<p>Many thanks to Mark Storer for helping me reach this solution.</p>
+",1000,,1000,,2013-11-19 15:04:14,2013-11-19 15:04:14,iText PDF: replace / transform colours,<pdf><colors><itext>,1,3,2,,2013-11-19 15:04:14
