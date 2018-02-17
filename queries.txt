@@ -1,0 +1,24 @@
+create table Posts(Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, PostTypeId TINYINT, AcceptedAnswerId INT, ParentId INT, CreationDate DATETIME, DeletionDate DATETIME, Score INT, ViewCount INT, Body nvarchar(15000), OwnerUserId INT, OwnerDisplayName nvarchar(40), LastEditorUserId INT, LastEditorDisplayName nvarchar(40), LastEditDate DATETIME, LastActivityDate DATETIME, Title nvarchar(250), Tags nvarchar(250), AnswerCount INT, CommentCount INT, FavoriteCount INT, ClosedDate DATETIME, CommunityOwnedDate DATETIME);
+
+
+partial:
+
+create table Posts(Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, PostTypeId TINYINT, AcceptedAnswerId INT, ParentId INT, CreationDate DATETIME, DeletionDate DATETIME, Score INT, ViewCount INT, OwnerUserId INT, OwnerDisplayName nvarchar(40), LastEditorUserId INT, LastEditorDisplayName nvarchar(40), LastEditDate DATETIME, LastActivityDate DATETIME, Tags nvarchar(250), AnswerCount INT, CommentCount INT, FavoriteCount INT, ClosedDate DATETIME, CommunityOwnedDate DATETIME);
+
+CREATE TABLE POSTS(ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT, PARENTID INT, CREATIONDATE DATETIME, TITLE VARCHAR(1000), BODY VARCHAR(2000));
+partial
+create table Users(Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, Reputation INT, CreationDate datetime, DisplayName nvarchar(40), LastAccessDate Datetime, Views INT, UpVotes INT, DownVotes INT, Age INT, AccountId INT);
+
+LOAD DATA LOCAL INFILE '/home/hemm/Desktop/Final Year Project/PostsMe.csv' INTO TABLE Posts FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+
+LOAD DATA LOCAL INFILE '/home/hemm/Desktop/posts.csv' INTO TABLE posts FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+
+
+LOAD DATA LOCAL INFILE '/home/hemm/Desktop/Final Year Project/VoteTypes.csv' INTO TABLE VoteTypes FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+
+
+create table VoteTypes(Id tinyint, Name nvarchar(50));
+
+
+sql1 = "CREATE TABLE users(ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT, DISPLAYNAME VARCHAR(50), PASSWORD VARCHAR(50))"
+

@@ -1,0 +1,2 @@
+ID,PARENTID,CREATIONDATE,TITLE,BODY
+1,1,31/07/16 23:40,How does database indexing work?,Given that indexing is so important as your data set increases in size can someone explain how does indexing works at a database agnostic level?
