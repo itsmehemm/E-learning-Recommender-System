@@ -1,0 +1,437 @@
+A Novel Approach for Improving Recommender
+System
+Sunil Kumar Khatri 1 , Sonam Gupta 2
+1,2
+Amity Institute of Information Technology, Amity University Uttar Pradesh, Noida, India
+1
+sunilkkhatri@gmail.com, skkhatri@amity.edu
+2
+sonam.guptas@gmail.com
+Abstract: Recommender systems these days tend to achieve status
+and importance. The algorithms and approaches present in a
+recommender system define the importance and worth of the
+recommender systems. Till now, the research which have been
+done has concentrated on generating the new approaches and
+algorithms so that by implementing them some good
+recommendations can be provided to the users. In this research
+paper we propose that a recommender system can be developed
+efficiently so that it can work beyond the conventional accuracy
+conditions and this can be done by comparative study of any two
+algorithms and generating a new algorithm based on the results
+of both algorithms which would give some more accurate results.
+Experimental results specifies that the people with different views
+mostly tends to favor different types of algorithms. There are few
+criteria for evaluating the recommender systems which can be
+helpful in judging the performance.
+Keywords: Recommender System, collaborating
+evaluation of algorithms, content-based approach.
+I.
+filtering,
+INTRODUCTION
+E-Commerce is increasing widely in terms of quantity and
+quality, the end-users spend huge time to select the products
+and services. Recommender systems are used in nearly every
+area which involves websites and android apps of e-commerce
+websites that helps the user to select a vast collection of items
+of their choice easily and efficiently [1]. These types of
+systems usually offer the customers with a menu of
+recommended items they want to choose, or supplies the
+estimates that how much the customer desire for every item. A
+recommender system is supported by well originated and
+robust algorithm. This algorithm varies considerably according
+to their effectiveness and efficiency. Thus, providing the user
+with the most effective choices of product. Most algorithms
+focuses on giving recommendations by analyzing some of the
+searching patterns of the end-user’s. However, providing only
+accuracy in results is inadequate. An example for this scenario
+is: Suppose we are using a recommender system which works
+only for recommending videos to end-user. Assume that all
+recommendation suggested by system are for that videos
+which we have already viewed. Though this recommender
+system is very worthy in rating every videos which we have
+viewed in order of likeness, this still would not be a good
+recommender system. Despite of the exactness in this example
+which is good performance, this system is not efficient as it
+lacks in analyzing the limitations: frequent redundant and
+978-1-5090-1489-7/16/$31.00 ©2016 IEEE
+obsolete results. Unfortunately, this is same process from
+which we presently check our recommender systems.
+Mostly the frequent recommender systems take any of two
+basic methods: collaborative filtering or content-based
+filtering. Other methods (such as hybrid approaches) also exist.
+Taking benefit of the "knowledge of crowds" (with
+collaborative filtering) has been made simpler with the data-
+collection chances the web gives. But the massive amounts of
+available data also confuse this chance. For example, even if
+several users' behavior can be demonstrated, other users do not
+display typical behavior. These users can twist the outcomes of
+a recommender system and reduces its efficiency. Further,
+users can exploit a recommender system to favor one item
+over another based on positive response on an item and
+negative response on competitive items, for example [2],[3].
+A good recommender system must manage these problems.
+One problem that is common in recommender systems is the
+problem of scalability. Traditional algorithms work well with
+smaller amounts of data, but when the data sets grow, the
+traditional algorithms can have difficulty keeping up. Although
+this might not be a problem for offline processing, more-
+specialized approaches are needed for real-time scenarios. A
+recent example is the case of a large company that could
+calculate a pregnancy-prediction score based on purchasing
+habits. Through the use of targeted ads, a father was surprised
+to learn that his teenage daughter was pregnant. The firm's
+analyst was so precise that it could calculate a potential
+mother's due date based on products or items she used to
+frequently purchase [1].
+II.
+LITERATURE REVIEW
+Recommender systems are the tools for filtering and sorting
+items and information. The previous studies was built on the
+fact that each time a user read a News article, the system
+generates a valuable judgement and taken those estimations as
+“ratings” and used the ratings to create their own calculations
+which were displayed as part of the article heading [1] .
+Ma et al [1] proposed a matrix factorization framework with
+social regularization. They elaborated how social network
+information can benefit recommender systems. They
+interpreted the differences between social-based recommender
+system and trust-aware recommender systems.
+6022016 5 th International Conference on Reliability, Infocom Technologies and Optimization (ICRITO) (Trends and Future Directions), Sep. 7-9, 2016,
+AIIT, Amity University Uttar Pradesh, Noida, India
+The Ringo system[2] provided recommendations for musicians
+using a similarity generation technique which was termed as
+“social information filtering”. Video Recommender [3]
+processes employed related algorithms to provide
+recommendations through electronic-mail and web amid a
+essential community of filmfan .
+start whereas in content-based approach a major problem of
+serendipitous item exists.
+In this paper the two types of recommender systems are
+compared: collaborative filtering and content-based
+recommender
+system.
+Initially
+working
+of
+both
+recommendation system was identified and existing
+parameters for generating results were analyzed. The
+algorithms for similarity calculation and predicted rating
+calculation were used to evaluate the results. Content-based
+technique and collaborative filtering technique were
+implemented by using Python programming language.
+Collaborative filtering, mentioned as social filtering, filters
+data by means of the recommendations of further individuals.
+Results are generated on the basis of the idea that if a user
+who had approved in the evaluation of some products or stuffs
+in the past are probably to approve again on that similar types
+of items in the future also. . We have tried to recommend
+places using Bi-Clustering and Jaccard by adding new
+parameters and eliminated the problem of cold start. Several
+people who wants to see a movie for example, they might ask
+for recommendations from their families or friends. Then in
+that case the recommendations of those family members or
+friends who have common type of taste related to movies are
+considered more than recommendations given from others and
+this information is used in the conclusion that which movie to
+see.
+Knijnenburg et al [5] developed a model which focuses on user
+experience and social experimental approach. Ventakesh P et
+al talked about how to reduce the traditional limitation of cold
+start and how it can be overcome using fuzzy collaborative
+filtering. In order to achieve this goal they aim to employ
+various recommendation approaches with data analysis.
+Gopalchari et al [6] focused on incorporating the domain
+knowledge along with matching the similar user pattern for
+recommender system. A different approach involves building a
+system which recommends the web pages that can help the
+fresh search situations and can advance the likeness of a user
+for the host website. Experimental results shows that the
+suggested novel approach produces an improvement in the
+performance of a recommender system in terms of the worth of
+the web page recommendations.
+Ghazanfar and Prugel-Bennett [7] proposed a hybrid
+recommendation model by combining the rating, feature, and
+demographic information about items. The research showed
+that the approach outperforms the state of the art recommender
+system algorithms, and eradicates recorded problems with
+recommender systems.
+Content-based filtering also known as cognitive filtering,
+suggests the items on the basis of comparison between the
+parameters of the different items. The parameters of each item
+are denoted as a set of descriptors or terms, usually the words
+that occur in a document and which describes the item
+genuinely. In content-based recommendation the keywords or
+some particular parameters are taken for an item which
+describes that item like properties of that item on the basis of
+these keywords or parameters the rating of a particular item is
+done. Particularly many individual items are matched with
+items earlier ranked by the consumer and the best-matching
+items are suggested.
+Nandagawali
+and Patil [8] focused on improving a
+recommender system by involving community based user
+domain model in which they incur rated social information of a
+product by enhancing collaborative approach .The basic
+purpose was to quantify the product’s needs by providing them
+recommendations.
+III. METHODOLOGY
+Recommender systems are the tools for cleaning and
+organizing items and information. Recommender systems are
+a part of data filtering system that try to find out and calculate
+the 'rating' or 'preference' that a user would provide to a
+product. They have tendency to maintain and improvise the
+quality of the judgments customers make while searching for
+selecting the items or products.
+The methodology adopted in this work involves following
+steps-
+Recommender system are very popular now-a-days and are
+commonly used in recommending movies, music, news, books,
+research articles, search queries, social tags, and items in
+general. However, recommender systems also exists for
+specialists, agents, jokes, eating places, commercial services,
+life insurance, persons (online dating), and Twitter supporters
+[1]. Today, recommendations are more particular and
+modified. The primary disadvantage of using collaborative
+approach is that it fails to produce results if there are no ratings
+available or inadequate data exists, this is also known as cold
+x Collecting data and cleaning it.
+x Implementing existing algorithm into the data and finding
+the best possible algorithm among them on the basis of
+their outputs.
+x Detailed analysis of both the approaches collaborative and
+content-based.
+x
+Suggesting some new criteria for both the approaches, to
+achieve better and more accurate recommendations.
+The collaborative filtering will be done on the basis of two
+indexes that are similarity and the other one is clustering .The
+similarity index is resolved using jaccard similarity coefficient
+also known as the Jaccard index. The clustering index will be
+solved using bi-clustering to carry the clustering m x n
+6032016 5 th International Conference on Reliability, Infocom Technologies and Optimization (ICRITO) (Trends and Future Directions), Sep. 7-9, 2016,
+AIIT, Amity University Uttar Pradesh, Noida, India
+matrix where m represents user’s rating and n denotes a hotel
+overall rating, our algorithm is capable to cluster the
+comparisons among users and items. The content-based
+filtering will done by introducing some new parameters in the
+data set which will improvise the outcomes as compared to
+previous outcomes.
+(A,B) = 1- J(A,B)= IAUBI=IAI+IBI-IA∩BI
+(2)
+In the proposed work, the Jaccard similarity coefficient
+formula is used for calculating the similarity index for users
+liking and rating of hotels . By using Jaccard’s index the
+results are more accurate as compared to other methods such as
+Euclidean distance method.
+IV. PROPOSED WORK
+After implementing Jaccard similarity coefficient, clustering
+index is implemented. For applying clustering a technique
+known as Bi-Clustering is used. By using Bi-Clustering, we
+get a clustered m x n matrix of coherent values of rows and
+columns at the same time where m specifies the user’s rating
+and n represents the hotel overall value, our algorithm is
+efficient to determine the similarity among users and items.
+After that additive function is used to get the overall results
+and if the values of any two inputs are common then again bi-
+clustering is applied on so that a better result can be generated.
+This research mainly focuses on enhancing the recommender
+system. Both the methods that are collaborative filtering and
+content-based filtering are studied and then they are
+implemented on the Hotel and Resorts data. After
+implementation
+when
+results
+are
+generated,
+the
+recommendation for hotels and resorts can be suggested to the
+users. The recommendations for the hotels and resorts will be
+given on the basis of the calculating the overall rating of each
+hotel. The better one’s will be recommended to the users. The
+data of Hotels and resorts rating is collected from the Hotel
+and Resorts websites and from several other sources. We have
+collected a large set of data and to bring some effectiveness we
+have used only stratified data in our work. The data extracted
+was in the text format which was parsed into Json format so
+that it can be easily imported in the python script. For both the
+approaches python is used to implement the programs of
+collaborative filtering and content-based filtering. The tool
+used for implementing Python 3.4 script is Anaconda 4.0.0
+and the data set in Json format is saved with .json extension.
+In content- based recommendation the keywords or some
+particular parameters are taken for an item which describes
+that item like as properties of that item on the basis of these
+keywords or parameters the rating of a particular item is done.
+Particularly many individual items are compared with items
+earlier ranked by the consumer and the best-matching items are
+suggested. The content-based filtering is done by introducing
+some new parameters in the data set which has improvise the
+outcomes as compared to previous outcomes.
+Collaborative filtering filters data by means of the
+recommendations of further individuals. It is generated on the
+basis of the idea that if a user who had approved in the
+evaluation of some products or stuffs in the past are probably
+to approve again on that similar types of items in the future
+also. The collaborative filtering is done on the basis of two
+indexes : similarity and clustering . The similarity index is
+solved using Jaccard similarity coefficient. The Jaccard
+similarity coefficient also known as Jaccard index was
+introduced by Paul Jaccard which is a common index for
+binary variables. Jaccard index is a statistics used for relating
+the similarity and range of sample set. In this the input is taken
+as the form of sets for example set A and set B and then it is
+defined as the size of the intersection divided by the size of the
+union of the sample sets that are Set A and set B and in the
+result it will measure the similarity of the two finite set A and
+set B.
+V.
+EXPERIMENTAL RESULTS
+Recommender systems are a type of system that help end user
+to decide among new products without having sufficient
+knowledge of that product. In collaborative approach, we have
+used the jaccard coefficient in order to find the similarity index
+of ratings provided by the end user. The data set gathered for
+our approach was incorporating the user’s rating.
+Figure 1 shows the data whose similarity index was calculated
+using Euclidean method.
+(1)
+( If in case both the sets A and B are empty then it is defined as
+J(A,B) =1 )
+Fig. 1. Similarity Index using Euclidean
+In the dataset, we have applied jaccard measure before
+performing clustering of data. The data were clustered using
+bi-clustering technique. Figure 2 shows our work, when all
+techniques have been applied, the Hotel 4 was raised much
+higher and now is recommended to user to stay.
+The Jaccard similarity coefficient measures the similarity
+index and Jaccard Distance measures the dissimilarities of the
+two finite set which is given as:
+6042016 5 th International Conference on Reliability, Infocom Technologies and Optimization (ICRITO) (Trends and Future Directions), Sep. 7-9, 2016,
+AIIT, Amity University Uttar Pradesh, Noida, India
+parameters which are sleep quality, service, value have given
+efficient results to user.. Recommender system is a very
+popular topic on which many research’s made been conducted
+and can be performed.
+ACKNOWLEDGEMENT
+Authors express their deep sense of gratitude to the Founder
+President of Amity University, Dr. Ashok K Chauhan for his
+keen interest in promoting research in the Amity University
+and has always been an inspiration for achieving greater
+heights.
+Fig. 2. Similarity Index using Jaccard Coefficient
+In content based approach, which incorporates analyzing
+attributes of a product, we have added few more parameters
+(sleep quality, service, location) in the data to give better
+output for user. Table I represents the new added parameter
+with the existing parameters and the best value which helps in
+recommending a place to user.
+REFERENCES
+[1]
+[2]
+TABLE I: CONTENT BASED APPROACH
+Name Cleanlines
+s
+Hotel
+4.6
+1
+Hotel
+4.7
+2
+Hotel
+3.9
+3
+Hotel
+4.7
+4
+Hotel
+4.6
+5
+Hotel
+4.6
+6
+Parameters
+Sleep
+Room
+Service Location Value
+Quality
+4.4 4.6 4.6 4.3 4.2
+4.3 4.4 4.1 4.5 4.2
+4.0 4.1 2.3 3.2 3.2
+4.6 4.8 4.7 4.5 4.4
+2.4 1.2 2.5 1.4 2.5
+4.2 4.1 3.5 1.2 1.2
+[3]
+[4]
+[5]
+[6]
+[7]
+VI. CONCLUSION
+Recommender Systems are very useful in generating best
+results for the user. Various approaches i.e. collaborative and
+content based provide user with different places but provides
+the best optimum result for them. In our work we have tried to
+present a new approach will be helpful in recommending
+results to user. We have tried to recommend places using Bi-
+Clustering and Jaccard and by adding new parameters .This
+work can be extended further by taking a large dataset which
+involves many new places. We have tried to improvise content
+based approach by adding new parameters but more
+parameters can be added for further research work. We have
+tried to reduce the problem of cold start by providing jaccard
+index rating to our system to predict results and remove
+serendipitous items by incorporating new parameters. Our new
+[8]
+[9]
+[10]
+[11]
+605
+J. Ben Schafer, Dan Frankowski, Jon Herlocker, Shilad Sen:
+Collaborative Filtering Recommender Systems, The Adaptive
+Web, Volume 4321 of the series Lecture Notes in Computer
+Science,2012,pp. 291-324.
+Adomavicius G. and Tuzhilin A: Toward the next generation of
+recommender systems: a survey of the state-of-the-art and
+possible extensions. Published in Knowledge and Data
+Engineering, IEEE Transactions on (Volume:17, Issue: 6),
+2011, pp. 734 – 749.
+Hao Ma, Dengyong Zhou, Chao Liu, Michael R. Lyu, Irwin
+King: Recommended system with social Regularization.
+Published in Journal ACM Transaction on Information
+Security,2010,pp-5-53.
+Paola Massa, Paola Avessani: Trust Aware Recommended
+System, Proceeding of the 2007 ACM Conference on
+Recommender System pp. 17-24
+Knijnenburg,Bela Gipp,Joran Beel,Christian Hentschel: A
+Research paper on Recommender System.In Proceedings of
+International Conference on Emerging Trends in Computing
+(ICETIC’09). pp. 309-315.
+Gopalchari, Middleton,S.E. Shadbolt,N.r. and De Roure:
+Ontological User Profiling in Recommender Systems, ACM
+Transactions on Information System (TOIS), vol.22,no.1,2011,
+pp.54-88.
+Ghazanfar, M.A., Prugel-Bennett, A: A Scalable, Accurate
+Hybrid recommender System . Published in:Knowledge
+Discovery and Data Mining, WKDD '10. Third International
+Conference. IEEE.,2012, pp. 94-98.
+Priyanka A.Nandagawali; Jaikumar M.Patil: Community based
+recommender system based on products. Power,Automation and
+communication International conf. on IEEE Publications
+2014,pp. 150-153.
+Jain, S.; Grover, A.; Thakur, P.S.; Choudhary, S.K: Trends,
+problems and solutions of recommender system.Computing,
+Communication and Automation (ICCCA), 2015 International
+Conference. Publishers IEEE. pp. 955 – 958.
+Young Choi; Jae Kyeong Kim: A Recommender System for
+Tourism Product, 48th Hawaii International Conference on IEEE
+Conference publication 2015, pp. 3354-3363.
+Harper,F.Li.X.Chen,Y. and Konstan: A Economic model of
+User Rating In An Online Recommender System,in Proceedings
+of
+the
+10th
+International
+Conference
+on
+User
+modelling,Edinburgh, U.K,2012, pp. 307-316.
